@@ -2,20 +2,24 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 import { getUsersList } from './api/mockUserApi'
-import { TableVirtualized } from './components/table'
+import TableVirtualized from './components/table/virtualized/table/TableVirtualized'
 
+import 'react-virtualized/styles.css' // only needs to be imported once
 import './index.scss'
+import './components/table/Table.scss'
 
 const App = () => {
   const columns = [
     {
       label: 'Id',
-      width: 100,
+      width: 50,
+      flexGrow: 0,
       cellRenderer: ({ rowData }) => rowData.id,
     },
     {
       label: 'First Name',
       width: 180,
+      flexGrow: 0,
       cellRenderer: ({ rowData }) => rowData.firstName,
     },
     {
@@ -27,15 +31,18 @@ const App = () => {
     {
       label: 'Job Type',
       width: 120,
+      flexGrow: 0,
       cellRenderer: ({ rowData }) => rowData.jobType,
     },
     {
       label: 'Job Title',
       width: 150,
+      flexGrow: 0,
       cellRenderer: ({ rowData }) => rowData.jobTitle,
     },
     {
       label: 'Job Description',
+      flexGrow: 1,
       cellRenderer: ({ rowData }) => rowData.jobDescriptor,
     },
   ]

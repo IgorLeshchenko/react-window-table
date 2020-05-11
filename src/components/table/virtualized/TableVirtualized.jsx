@@ -74,8 +74,6 @@ export const TableVirtualized = props => {
     return 'Loading...'
   }
 
-  console.log({ dataByPage })
-
   return (
     <AutoSizer>
       {({ height, width }) => {
@@ -93,6 +91,7 @@ export const TableVirtualized = props => {
               overscanRowCount={requestParams.size}
               itemCount={requestParams.count}
               itemSize={getRowSize}
+              onScroll={params => console.log(params)}
               layout="vertical">
               {({ index, style }) => (
                 <RowVirtualized
