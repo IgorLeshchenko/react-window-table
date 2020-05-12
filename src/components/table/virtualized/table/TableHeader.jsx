@@ -63,6 +63,7 @@ const TableHeader = props => {
     <AutoSizer disableHeight={true}>
       {({ width }) => (
         <Table
+          className="table"
           autoHeight={true}
           width={width < columnsTotalWidth ? columnsTotalWidth : width}
           height={headerHeight}

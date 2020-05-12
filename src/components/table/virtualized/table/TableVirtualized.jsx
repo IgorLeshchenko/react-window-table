@@ -1,14 +1,15 @@
-import React, { createRef, useMemo, useState } from 'react'
+import React, { createRef, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import { AutoSizer, CellMeasurerCache, WindowScroller } from 'react-virtualized'
+import { AutoSizer, CellMeasurer, CellMeasurerCache, Column, Table, WindowScroller } from 'react-virtualized'
 
 import * as TableConstants from '../../utils/constants'
 import TableHeader from './TableHeader'
+import CellRenderer from '../../cellRenderers/common/cellRenderer'
 
 const TableVirtualized = props => {
   const { columns } = props
   const windowScrollerRef = createRef()
-  const scrollTargetRef = createRef()
+  const tableRef = createRef()
   const columnsTotalWidth = useMemo(() => columns.reduce((acc, cell) => acc + (cell.width || cell.defaultWidth), 0), [
     columns,
   ])
@@ -16,18 +17,53 @@ const TableVirtualized = props => {
     fixedWidth: true,
     minHeight: TableConstants.MIN_ROW_HEIGHT_WITH_PADDING,
   })
+  const wrapperWidth = columnsTotalWidth + 24 * 2
 
   return (
-    <div className="windowScrollerWrapper">
+    <div className="windowScrollerWrapper" style={{ width: wrapperWidth }}>
       <TableHeader columnsTotalWidth={columnsTotalWidth} {...props} />
 
       <WindowScroller ref={windowScrollerRef}>
-        {({ height, isScrolling, registerChild, onChildScroll, scrollTop }) => (
+        {({ height, isScrolling, scrollTop }) => (
           <AutoSizer disableHeight>
             {({ width }) => (
-              <div>
-                <div>{width}</div>
-              </div>
+              <Table
+                className="table"
+                autoHeight={true}
+                isScrolling={isScrolling}
+                scrollTop={scrollTop}
+                width={width < columnsTotalWidth ? columnsTotalWidth : width}
+                height={height}
+                headerHeight={0}
+                disableHeader={true}
+                rowHeight={cache.rowHeight}
+                rowCount={100}
+                rowClassName="tableRow"
+                rowGetter={({ index }) => index}
+                ref={tableRef}
+                deferredMeasurementCache={cache}>
+                {columns.map((column, index) => {
+                  const { label, dataKey, width, defaultWidth, headerRenderer } = column
+                  const renderCell = headerRenderer ? headerRenderer : CellRenderer
+                  // eslint-disable-next-line react/prop-types
+                  const cellRenderer = ({ columnIndex, key, parent, rowIndex, style }) => (
+                    <CellMeasurer cache={cache} columnIndex={columnIndex} key={key} parent={parent} rowIndex={rowIndex}>
+                      {renderCell({ style, dataKey })}
+                    </CellMeasurer>
+                  )
+
+                  return (
+                    <Column
+                      key={index}
+                      label={label}
+                      width={width || defaultWidth}
+                      dataKey={dataKey}
+                      className="tableCell"
+                      cellRenderer={cellRenderer}
+                    />
+                  )
+                })}
+              </Table>
             )}
           </AutoSizer>
         )}

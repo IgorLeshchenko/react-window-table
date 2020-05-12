@@ -1,10 +1,17 @@
 .windowScrollerWrapper {
-  flex: 1 1 auto;
-  padding: 25px;
+  display: block;
+  background: #fff;
+  box-shadow: 2px 2px 5px rgba(0,0,0,.2);
+  margin: 16px;
+  padding: 20px 24px;
+}
+
+.ReactVirtualized__Grid {
+  outline: none;
 }
 
 .table {
-  border: 1px solid #e0e0e0;
+  outline: none;
 }
 
 .tableHeader {
@@ -13,6 +20,8 @@
 }
 
 .tableRow {
+  border-bottom: 1px solid #e0e0e0;
+
   &.header {
     border-bottom: 2px solid #e0e0e0;
     font-size: 12px;
@@ -39,6 +48,11 @@
     align-items: center;
     position: relative;
 
+    .defaultText {
+      font-size: 14px;
+      color: #666;
+    }
+
     .resizeHandle {
       display: flex;
       align-items: center;
@@ -52,7 +66,7 @@
       .handle {
         height: 50%;
         width: 1px;
-        border-right: 2px solid #e0e0e0;
+        border-right: 2px dotted #e0e0e0;
       }
 
       &:hover {
@@ -65,8 +79,8 @@
     .title {
       font-size: 12px;
       color: #666;
-      text-transform: uppercase;
       font-weight: 700;
+      text-transform: uppercase;
     }
 
     &:hover {
