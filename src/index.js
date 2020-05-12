@@ -2,11 +2,10 @@ import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 
 import { getUsersList } from './api/mockUserApi'
-import TableVirtualized from './components/table/virtualized/table/TableVirtualized'
+import { TableVirtualized } from './components/table'
 
-import 'react-virtualized/styles.css' // only needs to be imported once
+import 'react-virtualized/styles.css'
 import './index.scss'
-import './components/table/Table.scss'
 
 const App = () => {
   const [columns, setColumns] = useState([

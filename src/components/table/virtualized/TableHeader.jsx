@@ -3,48 +3,12 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import ArrayMove from 'array-move'
 import { AutoSizer, Column, Table } from 'react-virtualized'
-import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import { findIndex } from 'lodash'
 
-import * as TableConstants from '../../utils/constants'
-import DefaultHeaderRenderer from '../../cellRenderers/common/DefaultHeaderRenderer'
-
-const SortableHeader = SortableElement(({ children, ...props }) => React.cloneElement(children, props))
-
-const SortableHeaderRowRenderer = SortableContainer(({ className, columns, style }) => (
-  <div className={className} role="row" style={style}>
-    {React.Children.map(columns, (column, index) => {
-      const { className } = column.props
-      const isStickToLeft = className.indexOf('isStickToLeft') !== -1
-      const isStickToRight = className.indexOf('isStickToRight') !== -1
-      const isDisabled = isStickToLeft || isStickToRight
-      let collectionName = 'sortable'
-
-      if (isStickToLeft) {
-        collectionName = 'stickToLeft'
-      }
-
-      if (isStickToRight) {
-        collectionName = 'stickToRight'
-      }
-
-      return (
-        <SortableHeader disabled={isDisabled} collection={collectionName} index={index}>
-          {column}
-        </SortableHeader>
-      )
-    })}
-  </div>
-))
-
-// eslint-disable-next-line react/prop-types
-const RegularHeaderRowRenderer = ({ className, columns, style }) => (
-  <div className={className} role="row" style={style}>
-    {React.Children.map(columns, (column, index) => (
-      <SortableHeader index={index}>{column}</SortableHeader>
-    ))}
-  </div>
-)
+import * as TableConstants from '../utils/constants'
+import DefaultHeaderRenderer from '../cellRenderers/default/DefaultHeaderRenderer'
+import SortableHeaderRowRenderer from '../common/header/SortableHeaderRowRenderer'
+import RegularHeaderRowRenderer from '../common/header/RegularHeaderRowRenderer'
 
 const TableHeader = props => {
   const { headerHeight, columns, columnsTotalWidth, onColumnsReorder, onColumnsResize } = props
@@ -54,8 +18,11 @@ const TableHeader = props => {
   const onResize = ({ dataKey, deltaX }) => {
     const resizeIndex = findIndex(columns, cell => cell.dataKey === dataKey)
     const newColumns = columns.map((cell, index) => {
+      const {
+        maxResizeWidth = TableConstants.MAX_CELL_RESIZE_WIDTH,
+        minResizeWidth = TableConstants.MIN_CELL_RESIZE_WIDTH,
+      } = cell
       const data = { ...cell }
-      const { maxResizeWidth = 10000, minResizeWidth = 25 } = cell
       const previousWidth = cell.width || cell.defaultWidth
 
       if (index === resizeIndex) {
@@ -71,12 +38,6 @@ const TableHeader = props => {
 
     onColumnsResize(newColumns)
   }
-  const renderHeaderRow = params =>
-    onColumnsReorder ? (
-      <SortableHeaderRowRenderer {...params} axis="x" lockAxis="x" onSortEnd={onSortEnd} useDragHandle />
-    ) : (
-      <RegularHeaderRowRenderer {...params} />
-    )
 
   return (
     <AutoSizer disableHeight={true}>
@@ -87,7 +48,13 @@ const TableHeader = props => {
           width={width < columnsTotalWidth ? columnsTotalWidth : width}
           height={headerHeight}
           headerHeight={headerHeight}
-          headerRowRenderer={renderHeaderRow}
+          headerRowRenderer={params =>
+            onColumnsReorder ? (
+              <SortableHeaderRowRenderer {...params} axis="x" lockAxis="x" onSortEnd={onSortEnd} useDragHandle />
+            ) : (
+              <RegularHeaderRowRenderer {...params} />
+            )
+          }
           rowHeight={() => headerHeight}
           rowCount={0}
           rowClassName="tableRow header"

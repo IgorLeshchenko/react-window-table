@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
-// Invalidate the styles cache anytime `data` change
-export const useResetCache = data => {
+
+const useColumns = columns => {
   const ref = useRef()
 
   useEffect(() => {
@@ -12,3 +12,5 @@ export const useResetCache = data => {
 
   return ref
 }
+
+export default useColumns

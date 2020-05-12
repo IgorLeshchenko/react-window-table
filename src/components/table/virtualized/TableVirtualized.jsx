@@ -1,127 +1,84 @@
-import React, { useEffect, useState } from 'react'
+import React, { createRef, useMemo } from 'react'
 import PropTypes from 'prop-types'
-import AutoSizer from 'react-virtualized-auto-sizer'
-import { VariableSizeList as List } from 'react-window'
-import { isEmpty, debounce } from 'lodash'
+import { AutoSizer, CellMeasurer, CellMeasurerCache, Column, Table, WindowScroller } from 'react-virtualized'
 
-import * as TableUtils from '../utils/TableUtils'
 import * as TableConstants from '../utils/constants'
-import { TableContext } from '../context/tableContext'
-import { useResetCache } from '../hooks/useResetCache'
-import { TableHeader } from '../common/header/TableHeader'
-import { RowVirtualized } from './RowVirtualized'
 
-export const TableVirtualized = props => {
-  const { showHeader, handleLoadListPage, columns } = props
-  const [isLoading, setIsLoading] = useState(false)
-  const [dataByPage, setDataByPage] = useState({})
-  const [requestParams, setRequestParams] = useState({
-    page: 1,
-    size: 20,
-    count: 0,
+import TableHeader from './TableHeader'
+import DefaultCellRenderer from '../cellRenderers/default/DefaultCellRenderer'
+
+const TableVirtualized = props => {
+  const { columns } = props
+  const windowScrollerRef = createRef()
+  const tableRef = createRef()
+  const columnsTotalWidth = useMemo(() => columns.reduce((acc, cell) => acc + (cell.width || cell.defaultWidth), 0), [
+    columns,
+  ])
+  const cache = new CellMeasurerCache({
+    fixedWidth: true,
+    minHeight: TableConstants.MIN_ROW_HEIGHT_WITH_PADDING,
   })
-  const ref = useResetCache(dataByPage)
-  const sizeMap = React.useRef({})
-  const getRowSize = React.useCallback(
-    index => sizeMap.current[index] || TableConstants.MIN_ROW_HEIGHT_WITH_PADDING,
-    [],
-  )
-  const setRowSize = React.useCallback(
-    (index, size) => {
-      sizeMap.current = { ...sizeMap.current, [index]: size }
-      ref.current.resetAfterIndex(0)
-    },
-    [ref],
-  )
-  // TODO :: list optimization
-  const onItemsRendered = params => {
-    const { visibleStartIndex, visibleStopIndex } = params
-    const pagesToLoad = TableUtils.getRequestPagesToLoad({
-      visibleStartIndex,
-      visibleStopIndex,
-      size: requestParams.size,
-      dataByPage,
-    })
-
-    pagesToLoad.forEach(page => {
-      handleLoadListPage({ page, size: requestParams.size }).then(payload => {
-        setDataByPage({
-          ...dataByPage,
-          [page]: payload.results,
-        })
-        setRequestParams(payload)
-      })
-    })
-  }
-  const onItemsRenderedDebounced = debounce(onItemsRendered, 150)
-
-  useEffect(() => {
-    if (!isEmpty(dataByPage) || isLoading) {
-      return
-    }
-
-    setIsLoading(true)
-
-    handleLoadListPage({ page: requestParams.page, size: requestParams.size }).then(payload => {
-      setRequestParams(payload)
-      setDataByPage(TableUtils.generateListFromPayload(payload))
-
-      setIsLoading(false)
-    })
-  }, [isLoading, dataByPage, requestParams, handleLoadListPage])
-
-  if (isLoading) {
-    return 'Loading...'
-  }
+  const wrapperWidth = columnsTotalWidth + 24 * 2
 
   return (
-    <AutoSizer>
-      {({ height, width }) => {
-        const tableHeight = showHeader ? height - TableConstants.HEADER_HEIGHT : height
+    <div className="windowScrollerWrapper" style={{ width: wrapperWidth }}>
+      <TableHeader columnsTotalWidth={columnsTotalWidth} {...props} />
 
-        return (
-          <TableContext.Provider value={{ setRowSize, wrapperWidth: width, wrapperHeight: tableHeight }}>
-            <TableHeader columns={columns} width={width} />
+      <WindowScroller ref={windowScrollerRef}>
+        {({ height, isScrolling, scrollTop }) => (
+          <AutoSizer disableHeight>
+            {({ width }) => (
+              <Table
+                className="table"
+                autoHeight={true}
+                isScrolling={isScrolling}
+                scrollTop={scrollTop}
+                width={width < columnsTotalWidth ? columnsTotalWidth : width}
+                height={height}
+                headerHeight={0}
+                disableHeader={true}
+                rowHeight={cache.rowHeight}
+                rowCount={100}
+                rowClassName="tableRow"
+                rowGetter={({ index }) => index}
+                ref={tableRef}
+                deferredMeasurementCache={cache}>
+                {columns.map((column, index) => {
+                  const { label, dataKey, width, defaultWidth, cellRenderer } = column
 
-            <List
-              ref={ref}
-              width={width}
-              height={tableHeight}
-              onItemsRendered={onItemsRenderedDebounced}
-              overscanRowCount={requestParams.size}
-              itemCount={requestParams.count}
-              itemSize={getRowSize}
-              onScroll={params => console.log(params)}
-              layout="vertical">
-              {({ index, style }) => (
-                <RowVirtualized
-                  key={index}
-                  index={index}
-                  style={style}
-                  columns={columns}
-                  rowData={TableUtils.getRowDataByIndex({ dataByPage, size: requestParams.size, index })}
-                />
-              )}
-            </List>
-          </TableContext.Provider>
-        )
-      }}
-    </AutoSizer>
+                  return (
+                    <Column
+                      key={index}
+                      label={label}
+                      width={width || defaultWidth}
+                      dataKey={dataKey}
+                      className="tableCell"
+                      cellRenderer={({ columnIndex, key, parent, rowIndex }) => (
+                        <CellMeasurer
+                          cache={cache}
+                          columnIndex={columnIndex}
+                          key={key}
+                          parent={parent}
+                          rowIndex={rowIndex}>
+                          {DefaultCellRenderer({ label, rowIndex, columnIndex, cellRenderer, dataKey })}
+                        </CellMeasurer>
+                      )}
+                    />
+                  )
+                })}
+              </Table>
+            )}
+          </AutoSizer>
+        )}
+      </WindowScroller>
+    </div>
   )
 }
 
 TableVirtualized.propTypes = {
-  showHeader: PropTypes.bool,
-  columns: PropTypes.arrayOf(
-    PropTypes.shape({
-      label: PropTypes.string,
-      width: PropTypes.number,
-      cellRenderer: PropTypes.func.isRequired,
-    }),
-  ).isRequired,
-  handleLoadListPage: PropTypes.func.isRequired,
+  columns: PropTypes.array.isRequired,
+  onColumnsReorder: PropTypes.func,
+  onColumnsResize: PropTypes.func,
 }
 
-TableVirtualized.defaultProps = {
-  showHeader: true,
-}
+export default TableVirtualized
