@@ -9,18 +9,18 @@
 
 .tableHeader {
   border-bottom: 2px solid #e0e0e0;
+  user-select: none;
 }
 
 .tableRow {
   &.header {
-    border-bottom: 2px solid #ccc;
+    border-bottom: 2px solid #e0e0e0;
     font-size: 12px;
-    padding: 0 16px;
   }
 
   &:not(.header) {
     &:hover {
-      background-color: #f7f7f7;
+      background-color: #f9f9f9;
       cursor: pointer;
     }
   }
@@ -29,12 +29,57 @@
 .tableCell {
   font-size: 14px;
   flex-shrink: 0;
+  height: 100%;
+  cursor: pointer;
+
+  .cellContainer {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    position: relative;
+
+    .resizeHandle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      cursor: col-resize;
+      width: 8px;
+      height: 100%;
+      right: 0;
+
+      .handle {
+        height: 50%;
+        width: 1px;
+        border-right: 2px solid #e0e0e0;
+      }
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
 
   &.header {
-    font-size: 10px;
-    color: #666;
-    font-weight: 700;
-    text-transform: uppercase;
+    .title {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    &:hover {
+      .title {
+        color: #27a9e0;
+      }
+    }
+  }
+
+  &:last-child {
+    .resizeHandle {
+      display: none;
+    }
   }
 
   &:not(:last-child) {

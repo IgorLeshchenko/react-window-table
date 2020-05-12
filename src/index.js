@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 
 import { getUsersList } from './api/mockUserApi'
@@ -9,54 +9,79 @@ import './index.scss'
 import './components/table/Table.scss'
 
 const App = () => {
-  const columns = [
+  const [columns, setColumns] = useState([
     {
       label: 'Id',
-      width: 50,
-      flexGrow: 0,
+      dataKey: 'id',
+      width: null,
+      defaultWidth: 50,
+      minResizeWidth: 50,
+      maxResizeWidth: 150,
       cellRenderer: ({ rowData }) => rowData.id,
     },
     {
       label: 'First Name',
-      width: 180,
-      flexGrow: 0,
+      dataKey: 'firstName',
+      width: null,
+      defaultWidth: 150,
+      minResizeWidth: 100,
+      maxResizeWidth: 300,
       cellRenderer: ({ rowData }) => rowData.firstName,
     },
     {
       label: 'Last Name',
-      width: 180,
-      flexGrow: 0,
+      dataKey: 'lastName',
+      width: null,
+      defaultWidth: 150,
+      minResizeWidth: 100,
+      maxResizeWidth: 300,
       cellRenderer: ({ rowData }) => rowData.lastName,
     },
     {
       label: 'Job Type',
-      width: 120,
-      flexGrow: 0,
+      dataKey: 'jobType',
+      width: null,
+      defaultWidth: 100,
+      minResizeWidth: 100,
+      maxResizeWidth: 250,
       cellRenderer: ({ rowData }) => rowData.jobType,
     },
     {
       label: 'Job Title',
-      width: 150,
-      flexGrow: 0,
+      dataKey: 'jobTitle',
+      width: null,
+      defaultWidth: 150,
+      minResizeWidth: 100,
+      maxResizeWidth: 300,
       cellRenderer: ({ rowData }) => rowData.jobTitle,
     },
     {
       label: 'Job Description',
-      flexGrow: 1,
+      dataKey: 'jobDescriptor',
+      width: null,
+      defaultWidth: 300,
+      minResizeWidth: 150,
+      maxResizeWidth: 500,
       cellRenderer: ({ rowData }) => rowData.jobDescriptor,
     },
-  ]
+  ])
+  const handleSortColumns = newColumnsList => {
+    setColumns(newColumnsList)
+  }
+  const handleColumnsResize = newColumnsList => {
+    setColumns(newColumnsList)
+  }
 
   return (
     <div className="app">
-      <TableVirtualized columns={columns} handleLoadListPage={getUsersList} />
+      <TableVirtualized
+        columns={columns}
+        handleLoadListPage={getUsersList}
+        onColumnsReorder={handleSortColumns}
+        onColumnsResize={handleColumnsResize}
+      />
     </div>
   )
 }
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root'),
-)
+ReactDOM.render(<App />, document.getElementById('root'))
