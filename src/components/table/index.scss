@@ -1,9 +1,21 @@
 .windowScrollerWrapper {
-  display: block;
+  display: inline-block;
   background: #fff;
   box-shadow: 2px 2px 5px rgba(0,0,0,.2);
-  margin: 16px;
-  padding: 20px 24px;
+  margin: 16px 16px 0;
+  padding: 20px 24px 4px;
+  box-sizing: border-box;
+
+  .scrollBody {
+    &.modifyActive {
+      filter: blur(2px);
+    }
+  }
+}
+
+.bottomSpacer {
+  height: 16px;
+  width: 100%;
 }
 
 .ReactVirtualized__Grid,

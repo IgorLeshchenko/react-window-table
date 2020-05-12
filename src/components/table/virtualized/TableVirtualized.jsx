@@ -1,39 +1,54 @@
-import React, { createRef, useMemo } from 'react'
+import React, { useState, Fragment } from 'react'
 import PropTypes from 'prop-types'
-import { AutoSizer, CellMeasurer, CellMeasurerCache, Column, Table, WindowScroller } from 'react-virtualized'
+import classNames from 'classnames'
+import { CellMeasurer, CellMeasurerCache, Column, Table, WindowScroller } from 'react-virtualized'
 
+import useColumnsDimensions from '../hooks/useColumnsDimensions'
 import * as TableConstants from '../utils/constants'
-
 import TableHeader from './TableHeader'
 import DefaultCellRenderer from '../cellRenderers/default/DefaultCellRenderer'
 
 const TableVirtualized = props => {
-  const { columns } = props
-  const windowScrollerRef = createRef()
-  const tableRef = createRef()
-  const columnsTotalWidth = useMemo(() => columns.reduce((acc, cell) => acc + (cell.width || cell.defaultWidth), 0), [
-    columns,
-  ])
+  const [isCellModificationPending, setIsCellModificationPending] = useState(false)
   const cache = new CellMeasurerCache({
     fixedWidth: true,
     minHeight: TableConstants.MIN_ROW_HEIGHT_WITH_PADDING,
   })
-  const wrapperWidth = columnsTotalWidth + 24 * 2
+  const { columns, columnsWidth } = useColumnsDimensions(props.columns)
+  const handleResizeColumns = newColumns => {
+    props.onColumnsResize(newColumns)
+    cache.clearAll()
+    setIsCellModificationPending(false)
+  }
+  const handleReorderColumns = newColumns => {
+    props.onColumnsReorder(newColumns)
+    cache.clearAll()
+    setIsCellModificationPending(false)
+  }
 
   return (
-    <div className="windowScrollerWrapper" style={{ width: wrapperWidth }}>
-      <TableHeader columnsTotalWidth={columnsTotalWidth} {...props} />
-
-      <WindowScroller ref={windowScrollerRef}>
-        {({ height, isScrolling, scrollTop }) => (
-          <AutoSizer disableHeight>
-            {({ width }) => (
+    <Fragment>
+      <div className="windowScrollerWrapper">
+        <div className="scrollHeader">
+          <TableHeader
+            {...props}
+            onColumnsResizeStart={() => setIsCellModificationPending(true)}
+            onColumnsReorderStart={() => setIsCellModificationPending(true)}
+            onColumnsResize={handleResizeColumns}
+            onColumnsReorder={handleReorderColumns}
+          />
+        </div>
+        <div
+          className={classNames('scrollBody', { modifyActive: isCellModificationPending })}
+          style={{ width: columnsWidth }}>
+          <WindowScroller>
+            {({ height, isScrolling, scrollTop }) => (
               <Table
                 className="table"
                 autoHeight={true}
                 isScrolling={isScrolling}
                 scrollTop={scrollTop}
-                width={width < columnsTotalWidth ? columnsTotalWidth : width}
+                width={columnsWidth}
                 height={height}
                 headerHeight={0}
                 disableHeader={true}
@@ -41,7 +56,6 @@ const TableVirtualized = props => {
                 rowCount={100}
                 rowClassName="tableRow"
                 rowGetter={({ index }) => index}
-                ref={tableRef}
                 deferredMeasurementCache={cache}>
                 {columns.map((column, index) => {
                   const { label, dataKey, width, defaultWidth, cellRenderer } = column
@@ -68,10 +82,11 @@ const TableVirtualized = props => {
                 })}
               </Table>
             )}
-          </AutoSizer>
-        )}
-      </WindowScroller>
-    </div>
+          </WindowScroller>
+        </div>
+      </div>
+      <div className="bottomSpacer" />
+    </Fragment>
   )
 }
 

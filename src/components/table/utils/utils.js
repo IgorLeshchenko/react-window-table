@@ -2,6 +2,19 @@ import { get, times, isNil, isEmpty } from 'lodash'
 
 import * as TableConstants from './constants'
 
+export const sortColumnsByStickyStatusAndVisibility = columns => {
+  const stickToLeftColumns = columns.filter(column => column.isStickToLeft && !column.isHidden)
+  const stickToRightColumns = columns.filter(column => column.isStickToRight && !column.isHidden)
+  const notStickedColumns = columns.filter(
+    column => !column.isStickToLeft && !column.isStickToRight && !column.isHidden,
+  )
+
+  return [...stickToLeftColumns, ...notStickedColumns, ...stickToRightColumns]
+}
+
+export const getColumnsTotalWidth = columns =>
+  columns.reduce((acc, value) => acc + (value.width || value.defaultWidth), 0)
+
 export const generateListFromPayload = params => {
   const { page, size, count, results } = params
   const data = {}

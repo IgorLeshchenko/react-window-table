@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import Draggable from 'react-draggable'
 
-const ResizeHandler = ({ onResize, dataKey }) => (
+const ResizeHandler = ({ dataKey, onResizeStart, onResize, onResizeEnd }) => (
   <Draggable
     axis="x"
     defaultClassName="DragHandle"
@@ -13,6 +13,8 @@ const ResizeHandler = ({ onResize, dataKey }) => (
 
       onResize({ dataKey, deltaX })
     }}
+    onStart={onResizeStart}
+    onStop={onResizeEnd}
     position={{ x: 0 }}
     zIndex={999}>
     <div className="resizeHandle">
@@ -23,7 +25,9 @@ const ResizeHandler = ({ onResize, dataKey }) => (
 
 ResizeHandler.propTypes = {
   dataKey: PropTypes.string.isRequired,
+  onResizeStart: PropTypes.func.isRequired,
   onResize: PropTypes.func.isRequired,
+  onResizeEnd: PropTypes.func.isRequired,
 }
 
 export default ResizeHandler
