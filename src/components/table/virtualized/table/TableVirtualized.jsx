@@ -3,8 +3,9 @@ import PropTypes from 'prop-types'
 import { AutoSizer, CellMeasurer, CellMeasurerCache, Column, Table, WindowScroller } from 'react-virtualized'
 
 import * as TableConstants from '../../utils/constants'
+
 import TableHeader from './TableHeader'
-import CellRenderer from '../../cellRenderers/common/cellRenderer'
+import DefaultCellRenderer from '../../cellRenderers/common/DefaultCellRenderer'
 
 const TableVirtualized = props => {
   const { columns } = props
@@ -43,14 +44,7 @@ const TableVirtualized = props => {
                 ref={tableRef}
                 deferredMeasurementCache={cache}>
                 {columns.map((column, index) => {
-                  const { label, dataKey, width, defaultWidth, headerRenderer } = column
-                  const renderCell = headerRenderer ? headerRenderer : CellRenderer
-                  // eslint-disable-next-line react/prop-types
-                  const cellRenderer = ({ columnIndex, key, parent, rowIndex, style }) => (
-                    <CellMeasurer cache={cache} columnIndex={columnIndex} key={key} parent={parent} rowIndex={rowIndex}>
-                      {renderCell({ style, dataKey })}
-                    </CellMeasurer>
-                  )
+                  const { label, dataKey, width, defaultWidth, cellRenderer } = column
 
                   return (
                     <Column
@@ -59,7 +53,16 @@ const TableVirtualized = props => {
                       width={width || defaultWidth}
                       dataKey={dataKey}
                       className="tableCell"
-                      cellRenderer={cellRenderer}
+                      cellRenderer={({ columnIndex, key, parent, rowIndex }) => (
+                        <CellMeasurer
+                          cache={cache}
+                          columnIndex={columnIndex}
+                          key={key}
+                          parent={parent}
+                          rowIndex={rowIndex}>
+                          {DefaultCellRenderer({ label, rowIndex, columnIndex, cellRenderer, dataKey })}
+                        </CellMeasurer>
+                      )}
                     />
                   )
                 })}
@@ -79,19 +82,3 @@ TableVirtualized.propTypes = {
 }
 
 export default TableVirtualized
-
-//
-// <WindowScroller ref={windowScrollerRef}>
-//   {({ height, isScrolling, registerChild, onChildScroll, scrollTop }) => (
-//   <div className="windowScrollerWrapper">
-//     <AutoSizer disableHeight>
-//       {({ width }) => (
-//         <Table autoHeight width={width} headerHeight={20} rowHeight={30} rowCount={1000} rowGetter={() => ({})}>
-//           <Column headerRenderer={() => <span>test</span>} dataKey="name" label="Name" />
-//         </Table>
-//         </div>
-//         )}
-//         </AutoSizer>
-//         </div>
-//         )}
-//         </WindowScroller>

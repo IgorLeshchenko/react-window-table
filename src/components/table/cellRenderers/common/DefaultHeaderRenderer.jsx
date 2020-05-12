@@ -1,14 +1,24 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import Draggable from 'react-draggable'
+import { SortableHandle } from 'react-sortable-hoc'
+import { GrDrag } from 'react-icons/gr'
 
-const CellHeaderRenderer = props => {
+// Reordering columns handler
+const DragHandler = SortableHandle(() => (
+  <div className="reorderHandle">
+    <GrDrag className="dragIcon" />
+  </div>
+))
+
+const DefaultHeaderRenderer = props => {
   const { label, dataKey, onResize } = props
 
   return (
     <div className="cellContainer">
-      <div className="reorderHandle" />
       <div className="title">{label}</div>
+
+      <DragHandler />
 
       <Draggable
         axis="x"
@@ -30,10 +40,10 @@ const CellHeaderRenderer = props => {
   )
 }
 
-CellHeaderRenderer.propTypes = {
+DefaultHeaderRenderer.propTypes = {
   label: PropTypes.string,
   dataKey: PropTypes.string.isRequired,
   onResize: PropTypes.func,
 }
 
-export default CellHeaderRenderer
+export default DefaultHeaderRenderer

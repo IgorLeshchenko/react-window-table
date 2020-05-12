@@ -1,20 +1,39 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import classNames from 'classnames'
 import ArrayMove from 'array-move'
 import { AutoSizer, Column, Table } from 'react-virtualized'
 import { SortableContainer, SortableElement } from 'react-sortable-hoc'
 import { findIndex } from 'lodash'
 
 import * as TableConstants from '../../utils/constants'
-import CellHeaderRenderer from '../../cellRenderers/common/headerRenderer'
+import DefaultHeaderRenderer from '../../cellRenderers/common/DefaultHeaderRenderer'
 
 const SortableHeader = SortableElement(({ children, ...props }) => React.cloneElement(children, props))
 
 const SortableHeaderRowRenderer = SortableContainer(({ className, columns, style }) => (
   <div className={className} role="row" style={style}>
-    {React.Children.map(columns, (column, index) => (
-      <SortableHeader index={index}>{column}</SortableHeader>
-    ))}
+    {React.Children.map(columns, (column, index) => {
+      const { className } = column.props
+      const isStickToLeft = className.indexOf('isStickToLeft') !== -1
+      const isStickToRight = className.indexOf('isStickToRight') !== -1
+      const isDisabled = isStickToLeft || isStickToRight
+      let collectionName = 'sortable'
+
+      if (isStickToLeft) {
+        collectionName = 'stickToLeft'
+      }
+
+      if (isStickToRight) {
+        collectionName = 'stickToRight'
+      }
+
+      return (
+        <SortableHeader disabled={isDisabled} collection={collectionName} index={index}>
+          {column}
+        </SortableHeader>
+      )
+    })}
   </div>
 ))
 
@@ -54,7 +73,7 @@ const TableHeader = props => {
   }
   const renderHeaderRow = params =>
     onColumnsReorder ? (
-      <SortableHeaderRowRenderer {...params} axis="x" lockAxis="x" onSortEnd={onSortEnd} />
+      <SortableHeaderRowRenderer {...params} axis="x" lockAxis="x" onSortEnd={onSortEnd} useDragHandle />
     ) : (
       <RegularHeaderRowRenderer {...params} />
     )
@@ -76,17 +95,21 @@ const TableHeader = props => {
             throw new Error('Logic Error')
           }}>
           {columns.map((column, index) => {
-            const { label, dataKey, width, defaultWidth, headerRenderer } = column
-            const renderCell = headerRenderer ? headerRenderer : CellHeaderRenderer
+            const { isStickToLeft, isStickToRight, label, dataKey, width, defaultWidth, headerRenderer } = column
 
             return (
               <Column
+                isStickToLeft={isStickToLeft}
+                isStickToRight={isStickToRight}
                 key={index}
                 label={label}
                 width={width || defaultWidth}
                 dataKey="id" // note :: this is just a placeholder (not used)
-                headerClassName="tableCell header"
-                headerRenderer={() => renderCell({ label, dataKey, onResize })}
+                headerClassName={classNames('tableCell', 'header', {
+                  isStickToLeft,
+                  isStickToRight,
+                })}
+                headerRenderer={() => DefaultHeaderRenderer({ label, headerRenderer, dataKey, onResize })}
               />
             )
           })}

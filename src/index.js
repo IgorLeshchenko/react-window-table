@@ -11,6 +11,7 @@ import './components/table/Table.scss'
 const App = () => {
   const [columns, setColumns] = useState([
     {
+      isStickToLeft: true,
       label: 'Id',
       dataKey: 'id',
       width: null,
@@ -56,6 +57,7 @@ const App = () => {
       cellRenderer: ({ rowData }) => rowData.jobTitle,
     },
     {
+      isStickToRight: true,
       label: 'Job Description',
       dataKey: 'jobDescriptor',
       width: null,

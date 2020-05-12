@@ -48,20 +48,43 @@
     align-items: center;
     position: relative;
 
+    .title,
     .defaultText {
+      user-select: none;
+      flex-grow: 1;
       font-size: 14px;
       color: #666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .reorderHandle {
+      display: none;
+      flex-shrink: 0;
+      margin: 0 5px;
+      align-items: center;
+      justify-content: center;
+      cursor: move;
+      width: 12px;
+      height: 100%;
+
+      .dragIcon {
+        width: 15px;
+      }
+
+      &:hover {
+        opacity: 0.8;
+      }
     }
 
     .resizeHandle {
       display: flex;
       align-items: center;
       justify-content: center;
-      position: absolute;
       cursor: col-resize;
       width: 8px;
       height: 100%;
-      right: 0;
 
       .handle {
         height: 50%;
@@ -72,6 +95,13 @@
       &:hover {
         opacity: 0.8;
       }
+    }
+  }
+
+  &.isStickToLeft,
+  &.isStickToRight {
+    .reorderHandle {
+      display: none !important;
     }
   }
 
@@ -86,6 +116,10 @@
     &:hover {
       .title {
         color: #27a9e0;
+      }
+
+      .reorderHandle {
+        display: flex;
       }
     }
   }
