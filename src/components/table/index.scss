@@ -9,8 +9,8 @@ $columnIndexZIndex: $stickyHeaderZIndex + 1;
   box-sizing: border-box;
   background-color: #fff;
 
-  * > {
-    outline: none;
+  * {
+    outline: none !important;
   }
 
   .scrollHeader {
@@ -58,7 +58,7 @@ $columnIndexZIndex: $stickyHeaderZIndex + 1;
 
 .tableCell {
   font-size: 14px;
-  flex-shrink: 0;
+  flex-shrink: 0 !important;
   height: 100%;
   cursor: pointer;
   z-index: $columnIndexZIndex;

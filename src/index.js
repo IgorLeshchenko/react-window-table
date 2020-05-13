@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
+import LoadingSkeleton from 'react-loading-skeleton'
 
 import { getUsersList } from './api/mockUserApi'
 import { TableVirtualized } from './components/table'
@@ -75,12 +76,36 @@ const App = () => {
 
   return (
     <div className="app">
-      <TableVirtualized
-        columns={columns}
-        handleLoadListPage={getUsersList}
-        onColumnsReorder={handleSortColumns}
-        onColumnsResize={handleColumnsResize}
-      />
+      <div className="header">
+        <LoadingSkeleton width={300} />
+      </div>
+      <div className="content">
+        <div className="sidebar">
+          <div className="sidebar-item">
+            <LoadingSkeleton width={220} />
+          </div>
+          <div className="sidebar-item">
+            <LoadingSkeleton width={120} />
+          </div>
+          <div className="sidebar-item">
+            <LoadingSkeleton width={250} />
+          </div>
+          <div className="sidebar-item">
+            <LoadingSkeleton width={250} />
+          </div>
+          <div className="sidebar-item">
+            <LoadingSkeleton width={230} />
+          </div>
+        </div>
+        <div className="content-body">
+          <TableVirtualized
+            columns={columns}
+            handleLoadListPage={getUsersList}
+            onColumnsReorder={handleSortColumns}
+            onColumnsResize={handleColumnsResize}
+          />
+        </div>
+      </div>
     </div>
   )
 }

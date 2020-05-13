@@ -54,7 +54,7 @@ const TableVirtualized = props => {
                   headerHeight={0}
                   disableHeader={true}
                   rowHeight={cache.rowHeight}
-                  rowCount={1000}
+                  rowCount={100}
                   rowClassName="tableRow"
                   rowGetter={({ index }) => index}
                   deferredMeasurementCache={cache}>
