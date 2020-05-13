@@ -1,29 +1,41 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import Draggable from 'react-draggable'
+import classNames from 'classnames'
 
-const ResizeHandler = ({ dataKey, onResizeStart, onResize, onResizeEnd }) => (
+import * as TableUtils from '../../utils/utils'
+
+const ResizeHandler = ({ isResizeDisabled, dataKey, onResizeStart, onResize, onResizeEnd }) => (
   <Draggable
+    disabled={isResizeDisabled}
+    handle=".resizeIconWrapper"
     axis="x"
     defaultClassName="DragHandle"
     defaultClassNameDragging="DragHandleActive"
     onDrag={(event, { deltaX }) => {
-      event.preventDefault()
-      event.stopPropagation()
-
+      TableUtils.stopEvent(event)
       onResize({ dataKey, deltaX })
     }}
-    onStart={onResizeStart}
-    onStop={onResizeEnd}
+    onStart={event => {
+      TableUtils.stopEvent(event)
+      onResizeStart()
+    }}
+    onStop={event => {
+      TableUtils.stopEvent(event)
+      onResizeEnd()
+    }}
     position={{ x: 0 }}
     zIndex={999}>
-    <div className="resizeHandle">
-      <div className="handle" />
+    <div
+      className={classNames('resizeIconWrapper', { disabled: isResizeDisabled })}
+      onClick={event => TableUtils.stopEvent(event)}>
+      <div className="resizeIcon" />
     </div>
   </Draggable>
 )
 
 ResizeHandler.propTypes = {
+  isResizeDisabled: PropTypes.bool,
   dataKey: PropTypes.string.isRequired,
   onResizeStart: PropTypes.func.isRequired,
   onResize: PropTypes.func.isRequired,

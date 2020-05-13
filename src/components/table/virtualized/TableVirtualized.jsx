@@ -7,13 +7,13 @@ import { CellMeasurer, CellMeasurerCache, Column, Table, WindowScroller } from '
 import useColumnsDimensions from '../hooks/useColumnsDimensions'
 import * as TableConstants from '../utils/constants'
 import TableHeader from './TableHeader'
-import DefaultCellRenderer from '../cellRenderers/default/DefaultCellRenderer'
+import DefaultCellRenderer from '../common/cellRenderers/DefaultCellRenderer'
 
 const TableVirtualized = props => {
   const [isCellModificationPending, setIsCellModificationPending] = useState(false)
   const cache = new CellMeasurerCache({
     fixedWidth: true,
-    minHeight: TableConstants.MIN_ROW_HEIGHT_WITH_PADDING,
+    minHeight: TableConstants.ROW_HEIGHT,
   })
   const { columns, columnsWidth } = useColumnsDimensions(props.columns)
   const handleResizeColumns = newColumns => {
@@ -26,6 +26,10 @@ const TableVirtualized = props => {
     cache.clearAll()
     setIsCellModificationPending(false)
   }
+  const handleSortList = params => {
+    // TODO :: re-fetch the data here
+    props.onListSort(params)
+  }
 
   return (
     <Fragment>
@@ -33,6 +37,7 @@ const TableVirtualized = props => {
         <StickyContainer>
           <TableHeader
             {...props}
+            onListSort={handleSortList}
             onColumnsResizeStart={() => setIsCellModificationPending(true)}
             onColumnsReorderStart={() => setIsCellModificationPending(true)}
             onColumnsResize={handleResizeColumns}
@@ -94,6 +99,7 @@ const TableVirtualized = props => {
 
 TableVirtualized.propTypes = {
   columns: PropTypes.array.isRequired,
+  onListSort: PropTypes.func,
   onColumnsReorder: PropTypes.func,
   onColumnsResize: PropTypes.func,
 }

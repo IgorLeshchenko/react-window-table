@@ -6,7 +6,11 @@ const DefaultCellRenderer = props => {
 
   return (
     <div className="cellContainer" style={{ height: '100%' }}>
-      <span className="defaultText">{dataKey}</span>
+      <div className="cellBody">
+        <div className="renderer">
+          <span className="text">{dataKey}</span>
+        </div>
+      </div>
     </div>
   )
 }

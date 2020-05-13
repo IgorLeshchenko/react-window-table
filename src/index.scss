@@ -45,6 +45,25 @@ html, body, #root {
 
     > .content-body {
       flex-grow: 1;
+
+      > .demo-container {
+        box-shadow: 2px 2px 5px rgba(0,0,0,.2);
+        background-color: #fff;
+        padding: 20px;
+        margin: 16px;
+        width: 800px;
+
+        > .row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+
+          .col {
+            width: 180px;
+            padding: 20px;
+          }
+        }
+      }
     }
   }
 }

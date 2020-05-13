@@ -7,12 +7,21 @@ import { Sticky } from 'react-sticky'
 
 import * as TableConstants from '../utils/constants'
 import useColumnsDimensions from '../hooks/useColumnsDimensions'
-import DefaultHeaderRenderer from '../cellRenderers/default/DefaultHeaderRenderer'
+import DefaultHeaderRenderer from '../common/cellRenderers/DefaultHeaderRenderer'
 import SortableHeaderRowRenderer from '../common/header/SortableHeaderRowRenderer'
 import RegularHeaderRowRenderer from '../common/header/RegularHeaderRowRenderer'
 
 const TableHeader = props => {
-  const { headerHeight, onColumnsReorderStart, onColumnsReorder, onColumnsResizeStart, onColumnsResize } = props
+  const {
+    headerHeight,
+    sortDataKey,
+    sortDirection,
+    onListSort,
+    onColumnsReorderStart,
+    onColumnsReorder,
+    onColumnsResizeStart,
+    onColumnsResize,
+  } = props
   const { columns, columnsWidth, onResize } = useColumnsDimensions(props.columns)
   const onSortEnd = ({ oldIndex, newIndex }) => {
     onColumnsReorder(ArrayMove(columns, oldIndex, newIndex))
@@ -37,6 +46,7 @@ const TableHeader = props => {
                   {...params}
                   axis="x"
                   lockAxis="x"
+                  helperClass="reorderPending"
                   onSortStart={onColumnsReorderStart}
                   onSortEnd={onSortEnd}
                   useDragHandle
@@ -53,7 +63,16 @@ const TableHeader = props => {
               throw new Error('Logic Error')
             }}>
             {columns.map((column, index) => {
-              const { isStickToLeft, isStickToRight, label, dataKey, width, defaultWidth, headerRenderer } = column
+              const {
+                isResizeDisabled,
+                isStickToLeft,
+                isStickToRight,
+                label,
+                dataKey,
+                width,
+                defaultWidth,
+                headerRenderer,
+              } = column
 
               return (
                 <Column
@@ -66,15 +85,22 @@ const TableHeader = props => {
                   headerClassName={classNames('tableCell', 'header', {
                     isStickToLeft,
                     isStickToRight,
+                    isResizeDisabled,
                   })}
                   headerRenderer={() =>
                     DefaultHeaderRenderer({
+                      isResizeDisabled,
+                      isStickToLeft,
+                      isStickToRight,
                       label,
                       headerRenderer,
                       dataKey,
+                      sortDataKey,
+                      sortDirection,
+                      onListSort,
+                      onResizeStart: onColumnsResizeStart,
                       onResize,
                       onResizeEnd,
-                      onResizeStart: onColumnsResizeStart,
                     })
                   }
                 />
@@ -88,7 +114,10 @@ const TableHeader = props => {
 }
 
 TableHeader.propTypes = {
+  sortDataKey: PropTypes.string,
+  sortDirection: PropTypes.string,
   headerHeight: PropTypes.number,
+  onListSort: PropTypes.func,
   onColumnsResizeStart: PropTypes.func,
   onColumnsResize: PropTypes.func,
   onColumnsReorderStart: PropTypes.func,

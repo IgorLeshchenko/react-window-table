@@ -2,6 +2,21 @@ import { get, times, isNil, isEmpty } from 'lodash'
 
 import * as TableConstants from './constants'
 
+export const stopEvent = event => {
+  event.preventDefault()
+  event.stopPropagation()
+}
+
+export const getSortDirection = params => {
+  const { dataKey, sortDataKey, sortDirection } = params
+
+  if (dataKey === sortDataKey) {
+    return sortDirection === 'asc' ? 'desc' : 'asc'
+  }
+
+  return 'asc'
+}
+
 export const sortColumnsByStickyStatusAndVisibility = columns => {
   const stickToLeftColumns = columns.filter(column => column.isStickToLeft && !column.isHidden)
   const stickToRightColumns = columns.filter(column => column.isStickToRight && !column.isHidden)
@@ -13,7 +28,7 @@ export const sortColumnsByStickyStatusAndVisibility = columns => {
 }
 
 export const getColumnsTotalWidth = columns =>
-  columns.reduce((acc, value) => acc + (value.width || value.defaultWidth), 0)
+  columns.reduce((acc, value) => acc + (value.width || value.defaultWidth) + TableConstants.CELL_RIGHT_MARGIN, 0)
 
 export const generateListFromPayload = params => {
   const { page, size, count, results } = params
@@ -41,18 +56,6 @@ export const getRowDataByIndex = params => {
   const indexInsidePage = index - (pageNumber - 1) * size
 
   return get(dataByPage, `${pageNumber}.${indexInsidePage}`, {}) || {}
-}
-
-export const getRowHeight = element => {
-  if (!element) {
-    return TableConstants.MIN_ROW_HEIGHT_WITH_PADDING
-  }
-
-  const rowHeight = element.getBoundingClientRect().height
-
-  return rowHeight <= TableConstants.MIN_ROW_HEIGHT_WITH_PADDING
-    ? TableConstants.MIN_ROW_HEIGHT_WITH_PADDING
-    : rowHeight + TableConstants.ROW_PADDING_BOT + TableConstants.ROW_PADDING_TOP
 }
 
 export const getRequestPagesToLoad = params => {
