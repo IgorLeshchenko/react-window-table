@@ -1,6 +1,7 @@
-import React, { useState, Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
+import { StickyContainer } from 'react-sticky'
 import { CellMeasurer, CellMeasurerCache, Column, Table, WindowScroller } from 'react-virtualized'
 
 import useColumnsDimensions from '../hooks/useColumnsDimensions'
@@ -29,7 +30,7 @@ const TableVirtualized = props => {
   return (
     <Fragment>
       <div className="windowScrollerWrapper">
-        <div className="scrollHeader">
+        <StickyContainer>
           <TableHeader
             {...props}
             onColumnsResizeStart={() => setIsCellModificationPending(true)}
@@ -37,53 +38,54 @@ const TableVirtualized = props => {
             onColumnsResize={handleResizeColumns}
             onColumnsReorder={handleReorderColumns}
           />
-        </div>
-        <div
-          className={classNames('scrollBody', { modifyActive: isCellModificationPending })}
-          style={{ width: columnsWidth }}>
-          <WindowScroller>
-            {({ height, isScrolling, scrollTop }) => (
-              <Table
-                className="table"
-                autoHeight={true}
-                isScrolling={isScrolling}
-                scrollTop={scrollTop}
-                width={columnsWidth}
-                height={height}
-                headerHeight={0}
-                disableHeader={true}
-                rowHeight={cache.rowHeight}
-                rowCount={100}
-                rowClassName="tableRow"
-                rowGetter={({ index }) => index}
-                deferredMeasurementCache={cache}>
-                {columns.map((column, index) => {
-                  const { label, dataKey, width, defaultWidth, cellRenderer } = column
 
-                  return (
-                    <Column
-                      key={index}
-                      label={label}
-                      width={width || defaultWidth}
-                      dataKey={dataKey}
-                      className="tableCell"
-                      cellRenderer={({ columnIndex, key, parent, rowIndex }) => (
-                        <CellMeasurer
-                          cache={cache}
-                          columnIndex={columnIndex}
-                          key={key}
-                          parent={parent}
-                          rowIndex={rowIndex}>
-                          {DefaultCellRenderer({ label, rowIndex, columnIndex, cellRenderer, dataKey })}
-                        </CellMeasurer>
-                      )}
-                    />
-                  )
-                })}
-              </Table>
-            )}
-          </WindowScroller>
-        </div>
+          <div
+            className={classNames('scrollBody', { modifyActive: isCellModificationPending })}
+            style={{ width: columnsWidth }}>
+            <WindowScroller>
+              {({ height, isScrolling, scrollTop }) => (
+                <Table
+                  className="table"
+                  autoHeight={true}
+                  isScrolling={isScrolling}
+                  scrollTop={scrollTop}
+                  width={columnsWidth}
+                  height={height}
+                  headerHeight={0}
+                  disableHeader={true}
+                  rowHeight={cache.rowHeight}
+                  rowCount={1000}
+                  rowClassName="tableRow"
+                  rowGetter={({ index }) => index}
+                  deferredMeasurementCache={cache}>
+                  {columns.map((column, index) => {
+                    const { label, dataKey, width, defaultWidth, cellRenderer } = column
+
+                    return (
+                      <Column
+                        key={index}
+                        label={label}
+                        width={width || defaultWidth}
+                        dataKey={dataKey}
+                        className="tableCell"
+                        cellRenderer={({ columnIndex, key, parent, rowIndex }) => (
+                          <CellMeasurer
+                            cache={cache}
+                            columnIndex={columnIndex}
+                            key={key}
+                            parent={parent}
+                            rowIndex={rowIndex}>
+                            {DefaultCellRenderer({ label, rowIndex, columnIndex, cellRenderer, dataKey })}
+                          </CellMeasurer>
+                        )}
+                      />
+                    )
+                  })}
+                </Table>
+              )}
+            </WindowScroller>
+          </div>
+        </StickyContainer>
       </div>
       <div className="bottomSpacer" />
     </Fragment>

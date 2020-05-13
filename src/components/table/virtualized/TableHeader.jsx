@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import ArrayMove from 'array-move'
 import { Column, Table } from 'react-virtualized'
+import { Sticky } from 'react-sticky'
 
 import * as TableConstants from '../utils/constants'
 import useColumnsDimensions from '../hooks/useColumnsDimensions'
@@ -21,62 +22,68 @@ const TableHeader = props => {
   }
 
   return (
-    <Table
-      className="table headerTable"
-      autoHeight={true}
-      width={columnsWidth}
-      height={headerHeight}
-      headerHeight={headerHeight}
-      headerRowRenderer={params =>
-        onColumnsReorder ? (
-          <SortableHeaderRowRenderer
-            {...params}
-            axis="x"
-            lockAxis="x"
-            onSortStart={onColumnsReorderStart}
-            onSortEnd={onSortEnd}
-            useDragHandle
-            useWindowAsScrollContainer
-          />
-        ) : (
-          <RegularHeaderRowRenderer {...params} />
-        )
-      }
-      rowHeight={() => headerHeight}
-      rowCount={0}
-      rowClassName="tableRow header"
-      rowGetter={() => {
-        throw new Error('Logic Error')
-      }}>
-      {columns.map((column, index) => {
-        const { isStickToLeft, isStickToRight, label, dataKey, width, defaultWidth, headerRenderer } = column
-
-        return (
-          <Column
-            isStickToLeft={isStickToLeft}
-            isStickToRight={isStickToRight}
-            key={index}
-            label={label}
-            width={width || defaultWidth}
-            dataKey={dataKey}
-            headerClassName={classNames('tableCell', 'header', {
-              isStickToLeft,
-              isStickToRight,
-            })}
-            headerRenderer={() =>
-              DefaultHeaderRenderer({
-                label,
-                headerRenderer,
-                dataKey,
-                onResize,
-                onResizeEnd,
-                onResizeStart: onColumnsResizeStart,
-              })
+    <Sticky topOffset={-16}>
+      {({ style, isSticky }) => (
+        <div className={classNames('scrollHeader', { isSticky })} style={{ ...style, width: columnsWidth }}>
+          <Table
+            className="table headerTable"
+            autoHeight={true}
+            width={columnsWidth}
+            height={headerHeight}
+            headerHeight={headerHeight}
+            headerRowRenderer={params =>
+              onColumnsReorder ? (
+                <SortableHeaderRowRenderer
+                  {...params}
+                  axis="x"
+                  lockAxis="x"
+                  onSortStart={onColumnsReorderStart}
+                  onSortEnd={onSortEnd}
+                  useDragHandle
+                  useWindowAsScrollContainer
+                />
+              ) : (
+                <RegularHeaderRowRenderer {...params} />
+              )
             }
-          />
-        )
-      })}
-    </Table>
+            rowHeight={() => headerHeight}
+            rowCount={0}
+            rowClassName="tableRow header"
+            rowGetter={() => {
+              throw new Error('Logic Error')
+            }}>
+            {columns.map((column, index) => {
+              const { isStickToLeft, isStickToRight, label, dataKey, width, defaultWidth, headerRenderer } = column
+
+              return (
+                <Column
+                  isStickToLeft={isStickToLeft}
+                  isStickToRight={isStickToRight}
+                  key={index}
+                  label={label}
+                  width={width || defaultWidth}
+                  dataKey={dataKey}
+                  headerClassName={classNames('tableCell', 'header', {
+                    isStickToLeft,
+                    isStickToRight,
+                  })}
+                  headerRenderer={() =>
+                    DefaultHeaderRenderer({
+                      label,
+                      headerRenderer,
+                      dataKey,
+                      onResize,
+                      onResizeEnd,
+                      onResizeStart: onColumnsResizeStart,
+                    })
+                  }
+                />
+              )
+            })}
+          </Table>
+        </div>
+      )}
+    </Sticky>
   )
 }
 
