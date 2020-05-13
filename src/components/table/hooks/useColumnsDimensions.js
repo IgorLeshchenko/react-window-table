@@ -13,21 +13,19 @@ const useColumnsDimensions = initialColumns => {
     setColumnsWidth(TableUtils.getColumnsTotalWidth(initialColumns))
   }, [initialColumns])
 
-  // TODO :: improve deltaX logic
   const onResize = ({ dataKey, deltaX }) => {
     const resizeIndex = findIndex(columns, cell => cell.dataKey === dataKey)
     const newColumns = columns.map((cell, index) => {
-      const {
-        maxResizeWidth = TableConstants.MAX_CELL_RESIZE_WIDTH,
-        minResizeWidth = TableConstants.MIN_CELL_RESIZE_WIDTH,
-      } = cell
       const data = { ...cell }
       const previousWidth = cell.width || cell.defaultWidth
 
       if (index === resizeIndex) {
         const calculatedWidth = previousWidth + deltaX
 
-        if (calculatedWidth > minResizeWidth && calculatedWidth < maxResizeWidth) {
+        if (
+          calculatedWidth > TableConstants.MIN_CELL_RESIZE_WIDTH &&
+          calculatedWidth < TableConstants.MAX_CELL_RESIZE_WIDTH
+        ) {
           data.width = calculatedWidth
         }
       }

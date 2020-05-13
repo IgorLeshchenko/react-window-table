@@ -83,6 +83,8 @@ $columnIndexZIndex: $stickyHeaderZIndex + 1;
     .cellContainer {
       .cellBody {
         .renderer {
+          overflow: hidden;
+
           .text {
             font-size: 12px;
             color: #666;

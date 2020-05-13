@@ -6,8 +6,6 @@ const ColumnsConfig = [
     dataKey: 'id',
     width: null,
     defaultWidth: 50,
-    minResizeWidth: 50,
-    maxResizeWidth: 150,
     cellRenderer: ({ rowData }) => rowData.id,
   },
   {
@@ -15,8 +13,6 @@ const ColumnsConfig = [
     dataKey: 'firstName',
     width: null,
     defaultWidth: 150,
-    minResizeWidth: 110,
-    maxResizeWidth: 300,
     cellRenderer: ({ rowData }) => rowData.firstName,
   },
   {
@@ -24,8 +20,6 @@ const ColumnsConfig = [
     dataKey: 'lastName',
     width: null,
     defaultWidth: 150,
-    minResizeWidth: 100,
-    maxResizeWidth: 300,
     cellRenderer: ({ rowData }) => rowData.lastName,
   },
   {
@@ -33,8 +27,6 @@ const ColumnsConfig = [
     dataKey: 'jobType',
     width: null,
     defaultWidth: 100,
-    minResizeWidth: 100,
-    maxResizeWidth: 250,
     cellRenderer: ({ rowData }) => rowData.jobType,
   },
   {
@@ -42,8 +34,6 @@ const ColumnsConfig = [
     dataKey: 'jobTitle',
     width: null,
     defaultWidth: 150,
-    minResizeWidth: 100,
-    maxResizeWidth: 300,
     cellRenderer: ({ rowData }) => rowData.jobTitle,
   },
   {
@@ -52,8 +42,6 @@ const ColumnsConfig = [
     dataKey: 'jobDescriptor',
     width: null,
     defaultWidth: 300,
-    minResizeWidth: 150,
-    maxResizeWidth: 500,
     cellRenderer: ({ rowData }) => rowData.jobDescriptor,
   },
 ]
