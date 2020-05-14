@@ -65,7 +65,6 @@ const TableVirtualized = props => {
       <div className="windowScrollerWrapper">
         <TableHeader
           {...props}
-          isStickyEnabled={false}
           onListSort={handleSortList}
           onColumnsResizeStart={() => setIsCellModificationPending(true)}
           onColumnsReorderStart={() => setIsCellModificationPending(true)}

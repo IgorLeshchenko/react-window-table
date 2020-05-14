@@ -41,7 +41,6 @@
     "react-loading-skeleton": "^2.0.1",
     "react-scripts": "3.4.1",
     "react-sortable-hoc": "^1.11.0",
-    "react-sticky": "^6.0.3",
     "react-virtualized": "^9.21.2",
     "react-window": "^1.8.5"
   },

@@ -1,7 +1,6 @@
 import React, { useRef } from 'react'
 import PropTypes from 'prop-types'
 import { AutoSizer } from 'react-virtualized'
-import { StickyContainer } from 'react-sticky'
 
 import * as TableConstants from '../../utils/constants'
 
@@ -17,9 +16,7 @@ const ScrollWrapper = ({ children }) => {
 
         return (
           <div style={{ height, width, overflow: 'auto', scrollBehavior: 'smooth' }} ref={scrollElement}>
-            {scrollElement.current && (
-              <StickyContainer>{children({ height: heightWithoutBoundingElements, scrollElement })}</StickyContainer>
-            )}
+            {scrollElement.current && children({ height: heightWithoutBoundingElements, scrollElement })}
           </div>
         )
       }}

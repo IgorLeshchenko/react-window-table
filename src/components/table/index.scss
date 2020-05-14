@@ -1,6 +1,3 @@
-$stickyHeaderZIndex: 1;
-$columnIndexZIndex: $stickyHeaderZIndex + 1;
-
 .windowScrollerWrapper {
   display: inline-block;
   box-shadow: 2px 2px 5px rgba(0,0,0,.2);
@@ -14,12 +11,11 @@ $columnIndexZIndex: $stickyHeaderZIndex + 1;
   }
 
   .scrollHeader {
+    position: sticky;
+    top: 0;
     background-color: #fff;
-
-    &.isSticky {
-      padding-top: 10px;
-      z-index: $stickyHeaderZIndex;
-    }
+    z-index: 1;
+    padding-top: 10px;
   }
 
   .scrollBody {
@@ -87,7 +83,7 @@ $columnIndexZIndex: $stickyHeaderZIndex + 1;
   flex-shrink: 0 !important;
   height: 100%;
   cursor: pointer;
-  z-index: $columnIndexZIndex;
+  z-index: 2;
 
   &.header {
     .cellContainer {
