@@ -5,8 +5,8 @@ import * as TableUtils from '../utils/utils'
 import * as TableConstants from '../utils/constants'
 
 const useColumnsDimensions = initialColumns => {
-  const [columns, setColumns] = useState([])
-  const [columnsWidth, setColumnsWidth] = useState(0)
+  const [columns, setColumns] = useState(TableUtils.sortColumnsByStickyStatusAndVisibility(initialColumns))
+  const [columnsWidth, setColumnsWidth] = useState(TableUtils.getColumnsTotalWidth(initialColumns))
 
   useEffect(() => {
     setColumns(TableUtils.sortColumnsByStickyStatusAndVisibility(initialColumns))

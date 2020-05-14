@@ -56,15 +56,19 @@ const App = () => {
             </div>
           </div>
 
-          <TableVirtualized
-            sortDataKey={sortParams.dataKey}
-            sortDirection={sortParams.sortDirection}
-            columns={columns}
-            handleLoadListPage={getUsersList}
-            onListSort={handleSortList}
-            onColumnsReorder={handleSortColumns}
-            onColumnsResize={handleColumnsResize}
-          />
+          <div className="demo-body">
+            <TableVirtualized
+              endpoint="/api/transactions"
+              filters={{}}
+              sortDataKey={sortParams.dataKey}
+              sortDirection={sortParams.sortDirection}
+              columns={columns}
+              handleLoadListPage={getUsersList}
+              onListSort={handleSortList}
+              onColumnsReorder={handleSortColumns}
+              onColumnsResize={handleColumnsResize}
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { get, times, isNil, isEmpty } from 'lodash'
+import { get, isEmpty, isNil, times } from 'lodash'
 
 import * as TableConstants from './constants'
 

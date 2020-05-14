@@ -2,33 +2,46 @@ import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { StickyContainer } from 'react-sticky'
-import { CellMeasurer, CellMeasurerCache, Column, Table, WindowScroller } from 'react-virtualized'
+import { CellMeasurerCache } from 'react-virtualized'
 
-import useColumnsDimensions from '../hooks/useColumnsDimensions'
+import useTableData from '../hooks/useTableData'
 import * as TableConstants from '../utils/constants'
+
 import TableHeader from './TableHeader'
-import DefaultCellRenderer from '../common/cellRenderers/DefaultCellRenderer'
+import TableBody from './TableBody'
+import LoadingBody from '../common/body/LoadingBody'
+import NoDataMessage from '../common/body/NoDataMessage'
 
 const TableVirtualized = props => {
-  const [isCellModificationPending, setIsCellModificationPending] = useState(false)
+  const {
+    endpoint,
+    filters,
+    sortDirection,
+    sortDataKey,
+    columns,
+    onColumnsResize,
+    onColumnsReorder,
+    onListSort,
+  } = props
   const cache = new CellMeasurerCache({
     fixedWidth: true,
     minHeight: TableConstants.ROW_HEIGHT,
   })
-  const { columns, columnsWidth } = useColumnsDimensions(props.columns)
+  const [isCellModificationPending, setIsCellModificationPending] = useState(false)
+  const { data, count, hasNoData, isInitFetchDone } = useTableData({ endpoint, filters, sortDirection, sortDataKey })
   const handleResizeColumns = newColumns => {
-    props.onColumnsResize(newColumns)
+    onColumnsResize(newColumns)
     cache.clearAll()
     setIsCellModificationPending(false)
   }
   const handleReorderColumns = newColumns => {
-    props.onColumnsReorder(newColumns)
+    onColumnsReorder(newColumns)
     cache.clearAll()
     setIsCellModificationPending(false)
   }
   const handleSortList = params => {
-    // TODO :: re-fetch the data here
-    props.onListSort(params)
+    onListSort(params)
+    cache.clearAll()
   }
 
   return (
@@ -37,6 +50,7 @@ const TableVirtualized = props => {
         <StickyContainer>
           <TableHeader
             {...props}
+            isStickyEnabled={true}
             onListSort={handleSortList}
             onColumnsResizeStart={() => setIsCellModificationPending(true)}
             onColumnsReorderStart={() => setIsCellModificationPending(true)}
@@ -44,51 +58,10 @@ const TableVirtualized = props => {
             onColumnsReorder={handleReorderColumns}
           />
 
-          <div
-            className={classNames('scrollBody', { modifyActive: isCellModificationPending })}
-            style={{ width: columnsWidth }}>
-            <WindowScroller>
-              {({ height, isScrolling, scrollTop }) => (
-                <Table
-                  className="table"
-                  autoHeight={true}
-                  isScrolling={isScrolling}
-                  scrollTop={scrollTop}
-                  width={columnsWidth}
-                  height={height}
-                  headerHeight={0}
-                  disableHeader={true}
-                  rowHeight={cache.rowHeight}
-                  rowCount={100}
-                  rowClassName="tableRow"
-                  rowGetter={({ index }) => index}
-                  deferredMeasurementCache={cache}>
-                  {columns.map((column, index) => {
-                    const { label, dataKey, width, defaultWidth, cellRenderer } = column
-
-                    return (
-                      <Column
-                        key={index}
-                        label={label}
-                        width={width || defaultWidth}
-                        dataKey={dataKey}
-                        className="tableCell"
-                        cellRenderer={({ columnIndex, key, parent, rowIndex }) => (
-                          <CellMeasurer
-                            cache={cache}
-                            columnIndex={columnIndex}
-                            key={key}
-                            parent={parent}
-                            rowIndex={rowIndex}>
-                            {DefaultCellRenderer({ label, rowIndex, columnIndex, cellRenderer, dataKey })}
-                          </CellMeasurer>
-                        )}
-                      />
-                    )
-                  })}
-                </Table>
-              )}
-            </WindowScroller>
+          <div className={classNames('scrollBody', { modifyActive: isCellModificationPending })}>
+            {!isInitFetchDone && <LoadingBody />}
+            {hasNoData && <NoDataMessage />}
+            {!hasNoData && <TableBody cache={cache} columns={columns} count={count} data={data} />}
           </div>
         </StickyContainer>
       </div>
@@ -98,6 +71,10 @@ const TableVirtualized = props => {
 }
 
 TableVirtualized.propTypes = {
+  endpoint: PropTypes.string.isRequired,
+  sortDirection: PropTypes.string,
+  sortDataKey: PropTypes.string,
+  filters: PropTypes.object,
   columns: PropTypes.array.isRequired,
   onListSort: PropTypes.func,
   onColumnsReorder: PropTypes.func,

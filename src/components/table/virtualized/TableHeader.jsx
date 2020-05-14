@@ -11,8 +11,17 @@ import DefaultHeaderRenderer from '../common/cellRenderers/DefaultHeaderRenderer
 import SortableHeaderRowRenderer from '../common/header/SortableHeaderRowRenderer'
 import RegularHeaderRowRenderer from '../common/header/RegularHeaderRowRenderer'
 
+const StickyWrapper = ({ isStickyEnabled, children }) => {
+  if (isStickyEnabled) {
+    return <Sticky topOffset={-16}>{({ style, isSticky }) => children({ style, isSticky })}</Sticky>
+  }
+
+  return children({ style: {}, isSticky: false })
+}
+
 const TableHeader = props => {
   const {
+    isStickyEnabled,
     headerHeight,
     sortDataKey,
     sortDirection,
@@ -31,7 +40,7 @@ const TableHeader = props => {
   }
 
   return (
-    <Sticky topOffset={-16}>
+    <StickyWrapper isStickyEnabled={isStickyEnabled} topOffset={-16}>
       {({ style, isSticky }) => (
         <div className={classNames('scrollHeader', { isSticky })} style={{ ...style, width: columnsWidth }}>
           <Table
@@ -109,11 +118,12 @@ const TableHeader = props => {
           </Table>
         </div>
       )}
-    </Sticky>
+    </StickyWrapper>
   )
 }
 
 TableHeader.propTypes = {
+  isStickyEnabled: PropTypes.bool.isRequired,
   sortDataKey: PropTypes.string,
   sortDirection: PropTypes.string,
   headerHeight: PropTypes.number,

@@ -29,7 +29,7 @@ const DefaultHeaderRenderer = props => {
   return (
     <div className="cellContainer" onMouseDown={onCellClick}>
       <div className="cellBody">
-        <div className="renderer">
+        <div className="renderer headerRenderer">
           {headerRenderer ? headerRenderer : <div className="text">{label ? label : null}</div>}
         </div>
 
