@@ -1,15 +1,16 @@
-import React, { useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import ReactDOM from 'react-dom'
 import LoadingSkeleton from 'react-loading-skeleton'
 
 import ColumnsConfig from './columns'
 import { getUsersList } from './api/mockUserApi'
-import { TableVirtualized } from './components/table'
+import { ScrollWrapper, TableVirtualized } from './components/table'
 
 import 'react-virtualized/styles.css'
 import './index.scss'
 
 const App = () => {
+  const [scrollElement, setScrollElement] = useState(null)
   const [columns, setColumns] = useState(ColumnsConfig)
   const [sortParams, setSortParams] = useState({ dataKey: null, sortDirection: null })
   const handleSortColumns = newColumnsList => {
@@ -45,30 +46,38 @@ const App = () => {
             <LoadingSkeleton width={230} />
           </div>
         </div>
-        <div className="content-body">
-          <div className="demo-container">
-            <div className="title">Table Settings</div>
-            <div className="row">
-              <div className="col">1</div>
-              <div className="col">2</div>
-              <div className="col">3</div>
-              <div className="col">4</div>
-            </div>
-          </div>
+        <div className="content-body" id="scrollBody" ref={setScrollElement}>
+          <ScrollWrapper scrollElement={scrollElement}>
+            {({ height, scrollElement }) => (
+              <Fragment>
+                <div className="demo-container">
+                  <div className="title">Table Settings</div>
+                  <div className="row">
+                    <div className="col">1</div>
+                    <div className="col">2</div>
+                    <div className="col">3</div>
+                    <div className="col">4</div>
+                  </div>
+                </div>
 
-          <div className="demo-body">
-            <TableVirtualized
-              endpoint="/api/transactions"
-              filters={{}}
-              sortDataKey={sortParams.dataKey}
-              sortDirection={sortParams.sortDirection}
-              columns={columns}
-              handleLoadListPage={getUsersList}
-              onListSort={handleSortList}
-              onColumnsReorder={handleSortColumns}
-              onColumnsResize={handleColumnsResize}
-            />
-          </div>
+                <div className="demo-body">
+                  <TableVirtualized
+                    scrollElement={scrollElement}
+                    contentHeight={height}
+                    endpoint="/api/transactions"
+                    filters={{}}
+                    sortDataKey={sortParams.dataKey}
+                    sortDirection={sortParams.sortDirection}
+                    columns={columns}
+                    handleLoadListPage={getUsersList}
+                    onListSort={handleSortList}
+                    onColumnsReorder={handleSortColumns}
+                    onColumnsResize={handleColumnsResize}
+                  />
+                </div>
+              </Fragment>
+            )}
+          </ScrollWrapper>
         </div>
       </div>
     </div>

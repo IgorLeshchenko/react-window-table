@@ -2,7 +2,7 @@ const express = require('express')
 const faker = require('faker')
 const app = express()
 
-const transactionsAmount = 100
+const transactionsAmount = 10000
 const transactionsList = []
 
 const possibleCategories = [

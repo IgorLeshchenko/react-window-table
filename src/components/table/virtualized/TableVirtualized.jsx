@@ -1,8 +1,8 @@
 import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
-import { StickyContainer } from 'react-sticky'
 import { CellMeasurerCache } from 'react-virtualized'
+import { debounce } from 'lodash'
 
 import useTableData from '../hooks/useTableData'
 import * as TableConstants from '../utils/constants'
@@ -14,6 +14,8 @@ import NoDataMessage from '../common/body/NoDataMessage'
 
 const TableVirtualized = props => {
   const {
+    scrollElement,
+    contentHeight,
     endpoint,
     filters,
     sortDirection,
@@ -28,7 +30,12 @@ const TableVirtualized = props => {
     minHeight: TableConstants.ROW_HEIGHT,
   })
   const [isCellModificationPending, setIsCellModificationPending] = useState(false)
-  const { data, count, hasNoData, isInitFetchDone } = useTableData({ endpoint, filters, sortDirection, sortDataKey })
+  const { data, count, noDataAvailable, isInitFetchDone } = useTableData({
+    endpoint,
+    filters,
+    sortDirection,
+    sortDataKey,
+  })
   const handleResizeColumns = newColumns => {
     onColumnsResize(newColumns)
     cache.clearAll()
@@ -43,27 +50,46 @@ const TableVirtualized = props => {
     onListSort(params)
     cache.clearAll()
   }
+  const handleRowsRendered = params => {
+    const { startIndex, stopIndex } = params
+    const startLoad = startIndex < 25 ? startIndex : startIndex - 25
+    const stopLoad = stopIndex < count - 25 ? stopIndex + 25 : count
+
+    console.log('visible', startIndex, stopIndex)
+    console.log('should load', { startLoad, stopLoad })
+  }
+  const handleRowsRenderedDebounced = debounce(handleRowsRendered, 150)
 
   return (
     <Fragment>
       <div className="windowScrollerWrapper">
-        <StickyContainer>
-          <TableHeader
-            {...props}
-            isStickyEnabled={true}
-            onListSort={handleSortList}
-            onColumnsResizeStart={() => setIsCellModificationPending(true)}
-            onColumnsReorderStart={() => setIsCellModificationPending(true)}
-            onColumnsResize={handleResizeColumns}
-            onColumnsReorder={handleReorderColumns}
-          />
+        <TableHeader
+          {...props}
+          isStickyEnabled={false}
+          onListSort={handleSortList}
+          onColumnsResizeStart={() => setIsCellModificationPending(true)}
+          onColumnsReorderStart={() => setIsCellModificationPending(true)}
+          onColumnsResize={handleResizeColumns}
+          onColumnsReorder={handleReorderColumns}
+        />
 
-          <div className={classNames('scrollBody', { modifyActive: isCellModificationPending })}>
-            {!isInitFetchDone && <LoadingBody />}
-            {hasNoData && <NoDataMessage />}
-            {!hasNoData && <TableBody cache={cache} columns={columns} count={count} data={data} />}
-          </div>
-        </StickyContainer>
+        <div className={classNames('scrollBody', { modifyActive: isCellModificationPending })}>
+          {!isInitFetchDone && <LoadingBody />}
+
+          {noDataAvailable && <NoDataMessage />}
+
+          {!noDataAvailable && (
+            <TableBody
+              scrollElement={scrollElement}
+              contentHeight={contentHeight}
+              cache={cache}
+              columns={columns}
+              count={count}
+              data={data}
+              onRowsRendered={handleRowsRenderedDebounced}
+            />
+          )}
+        </div>
       </div>
       <div className="bottomSpacer" />
     </Fragment>
@@ -71,6 +97,8 @@ const TableVirtualized = props => {
 }
 
 TableVirtualized.propTypes = {
+  scrollElement: PropTypes.any.isRequired,
+  contentHeight: PropTypes.number.isRequired,
   endpoint: PropTypes.string.isRequired,
   sortDirection: PropTypes.string,
   sortDataKey: PropTypes.string,

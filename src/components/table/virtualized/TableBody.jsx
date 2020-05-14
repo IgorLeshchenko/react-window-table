@@ -2,31 +2,34 @@ import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 import { CellMeasurer, Column, Table, WindowScroller } from 'react-virtualized'
 
+import * as TableConstants from '../utils/constants'
+import * as ApiUtils from '../utils/apiUtils'
 import useColumnsDimensions from '../hooks/useColumnsDimensions'
 import DefaultCellRenderer from '../common/cellRenderers/DefaultCellRenderer'
 
 const TableBody = props => {
-  const { data, count, cache } = props
+  const { data, contentHeight, count, cache, scrollElement, onRowsRendered } = props
   const { columns, columnsWidth } = useColumnsDimensions(props.columns)
 
   return (
-    <div style={{ width: columnsWidth }}>
-      <WindowScroller>
-        {({ height, isScrolling, scrollTop }) => (
+    <WindowScroller scrollElement={scrollElement.current}>
+      {({ isScrolling, scrollTop }) => (
+        <div style={{ width: columnsWidth }}>
           <Table
             className="table"
             autoHeight={true}
             isScrolling={isScrolling}
             scrollTop={scrollTop}
             width={columnsWidth}
-            height={height}
+            height={contentHeight}
             headerHeight={0}
             disableHeader={true}
             rowHeight={cache.rowHeight}
             rowCount={count}
             rowClassName="tableRow"
             rowGetter={({ index }) => index}
-            overscanRowCount={30}
+            overscanRowCount={0}
+            onRowsRendered={onRowsRendered}
             deferredMeasurementCache={cache}>
             {columns.map((column, index) => {
               const { label, dataKey, width, defaultWidth, cellRenderer } = column
@@ -43,7 +46,7 @@ const TableBody = props => {
                       {DefaultCellRenderer({
                         dataKey,
                         rowIndex,
-                        rowData: data[rowIndex] || {},
+                        rowData: ApiUtils.getRowDataByIndex({ data, size: TableConstants.INITIAL_SIZE, rowIndex }),
                         cellRenderer,
                         columnIndex,
                         columnWidth: width || defaultWidth,
@@ -54,17 +57,20 @@ const TableBody = props => {
               )
             })}
           </Table>
-        )}
-      </WindowScroller>
-    </div>
+        </div>
+      )}
+    </WindowScroller>
   )
 }
 
 TableBody.propTypes = {
+  scrollElement: PropTypes.any.isRequired,
+  contentHeight: PropTypes.number.isRequired,
   data: PropTypes.object.isRequired,
   cache: PropTypes.object.isRequired,
   count: PropTypes.number.isRequired,
   columns: PropTypes.array.isRequired,
+  onRowsRendered: PropTypes.func.isRequired,
 }
 
 export default memo(TableBody)
