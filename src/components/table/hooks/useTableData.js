@@ -12,6 +12,7 @@ const useTableData = ({ sortDataKey = null, sortDirection = null, filters = {}, 
 
   const onRowsRendered = useCallback(
     params => {
+      return
       const { overscanStartIndex, overscanStopIndex } = params
       const { startPage, stopPage } = ApiUtils.getPagesToLoadByIndex({
         overscanStartIndex,

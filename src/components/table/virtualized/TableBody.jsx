@@ -46,11 +46,8 @@ const TableBody = props => {
                     <CellMeasurer cache={cache} columnIndex={columnIndex} key={key} parent={parent} rowIndex={rowIndex}>
                       {DefaultCellRenderer({
                         dataKey,
-                        rowIndex,
                         rowData: ApiUtils.getRowDataByIndex({ data, size: TableConstants.INITIAL_SIZE, rowIndex }),
                         cellRenderer,
-                        columnIndex,
-                        columnWidth: width || defaultWidth,
                       })}
                     </CellMeasurer>
                   )}

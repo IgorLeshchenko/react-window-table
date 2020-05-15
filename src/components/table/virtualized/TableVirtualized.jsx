@@ -11,11 +11,6 @@ import TableBody from './TableBody'
 import LoadingBody from '../common/body/LoadingBody'
 import NoDataMessage from '../common/body/NoDataMessage'
 
-const cache = new CellMeasurerCache({
-  fixedWidth: true,
-  minHeight: TableConstants.ROW_HEIGHT,
-})
-
 const TableVirtualized = props => {
   const {
     scrollElement,
@@ -29,6 +24,10 @@ const TableVirtualized = props => {
     onColumnsReorder,
     onListSort,
   } = props
+  const cache = new CellMeasurerCache({
+    fixedWidth: true,
+    minHeight: TableConstants.ROW_HEIGHT,
+  })
   const [isCellModificationPending, setIsCellModificationPending] = useState(false)
   const { data, count, noDataAvailable, onRowsRendered, isInitFetchDone } = useTableData({
     endpoint,
@@ -38,20 +37,18 @@ const TableVirtualized = props => {
   })
   const handleResizeColumns = newColumns => {
     onColumnsResize(newColumns)
-    cache.clearAll()
     setIsCellModificationPending(false)
+    cache.clearAll()
   }
   const handleReorderColumns = newColumns => {
     onColumnsReorder(newColumns)
-    cache.clearAll()
     setIsCellModificationPending(false)
+    cache.clearAll()
   }
   const handleSortList = params => {
     onListSort(params)
     cache.clearAll()
   }
-
-  useEffect(() => () => cache.clearAll())
 
   return (
     <Fragment>

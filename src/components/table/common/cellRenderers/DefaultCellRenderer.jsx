@@ -1,28 +1,32 @@
-import React, { Fragment } from 'react'
+import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 import { isEmpty } from 'lodash'
 
 import * as TableConstants from '../../utils/constants'
 
+const CellRenderer = memo(props => {
+  const { dataKey, rowData, cellRenderer } = props
+
+  return (
+    <div className="cellBody">
+      <div className="renderer">
+        {cellRenderer ? (
+          cellRenderer({ dataKey, rowData })
+        ) : (
+          <span className="text">{TableConstants.EMPTY_VALUE_PLACEHOLDER}</span>
+        )}
+      </div>
+    </div>
+  )
+})
+
 const DefaultCellRenderer = props => {
-  const { dataKey, rowData, rowIndex, columnIndex, cellRenderer } = props
+  const { dataKey, rowData, cellRenderer } = props
   const isDataLoaded = !isEmpty(rowData)
 
   return (
     <div className="cellContainer" style={{ height: '100%' }}>
-      <div className="cellBody">
-        <div className="renderer">
-          {isDataLoaded && (
-            <Fragment>
-              {cellRenderer ? (
-                cellRenderer({ dataKey, rowData, rowIndex, columnIndex })
-              ) : (
-                <span className="text">{TableConstants.EMPTY_VALUE_PLACEHOLDER}</span>
-              )}
-            </Fragment>
-          )}
-        </div>
-      </div>
+      {isDataLoaded && <CellRenderer dataKey={dataKey} rowData={rowData} cellRenderer={cellRenderer} />}
     </div>
   )
 }
@@ -30,9 +34,9 @@ const DefaultCellRenderer = props => {
 DefaultCellRenderer.propTypes = {
   dataKey: PropTypes.string.isRequired,
   rowData: PropTypes.object,
-  rowIndex: PropTypes.number.isRequired,
-  columnIndex: PropTypes.number.isRequired,
   cellRenderer: PropTypes.func,
 }
+
+CellRenderer.propTypes = DefaultCellRenderer.propTypes
 
 export default DefaultCellRenderer
