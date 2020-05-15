@@ -11,7 +11,7 @@ const ScrollWrapper = ({ children }) => {
     <AutoSizer>
       {({ height, width }) => {
         const outsideElements = window.innerHeight - height
-        const boundaryElements = outsideElements + TableConstants.HEADER_HEIGHT + TableConstants.WRAPPER_PADDING
+        const boundaryElements = outsideElements + TableConstants.HEADER_HEIGHT + TableConstants.WRAPPER_MARGIN * 2
         const heightWithoutBoundingElements = height + boundaryElements
 
         return (

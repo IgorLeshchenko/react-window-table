@@ -1,19 +1,4 @@
-import {
-  chunk,
-  compact,
-  every,
-  forEach,
-  get,
-  isArray,
-  isEmpty,
-  isNil,
-  isNull,
-  isUndefined,
-  max,
-  min,
-  times,
-  omitBy,
-} from 'lodash'
+import { compact, every, forEach, isArray, isEmpty, isNil, isNull, isUndefined } from 'lodash'
 
 export const formatFilterStrings = ({ filters }) => {
   const filterResults = []
@@ -61,10 +46,10 @@ export const formatQueryString = ({ offset, limit, sortDataKey, sortDirection, f
   ]).join('&')
 
 export const getURLString = params => {
-  const { endpoint, page, size, sortDataKey, sortDirection, filters } = params
+  const { endpoint, offset, limit, sortDataKey, sortDirection, filters } = params
   const queryString = formatQueryString({
-    offset: page * size,
-    limit: size,
+    offset,
+    limit,
     sortDataKey,
     sortDirection,
     filters,
@@ -74,7 +59,15 @@ export const getURLString = params => {
 }
 
 export const fetchData = params => {
-  const url = getURLString(params)
+  const { endpoint, startIndex, stopIndex, sortDataKey, sortDirection, filters } = params
+  const url = getURLString({
+    endpoint,
+    offset: startIndex,
+    limit: stopIndex - startIndex,
+    sortDataKey,
+    sortDirection,
+    filters,
+  })
 
   return fetch(url, { signal: params.signal })
     .then(payload => payload.json())
@@ -88,82 +81,13 @@ export const fetchData = params => {
     }))
 }
 
-export const getInitialData = params => {
-  const { count, size } = params
-  const pagesNumber = Math.floor(count / size)
-  const pages = {}
-
-  times(pagesNumber, index => {
-    pages[index] = {}
-
-    times(size, itemIndex => {
-      pages[index][itemIndex] = null
-    })
-  })
-
-  return pages
-}
-
 export const transformItemsToPages = params => {
-  const { items, page, size } = params
-  const itemsByPage = {}
+  const { items, startIndex } = params
+  const itemsByIndex = {}
 
-  chunk(items, size).forEach((chunk, index) => {
-    const pageNumber = page + index
-
-    if (!itemsByPage[pageNumber]) {
-      itemsByPage[pageNumber] = {}
-    }
-
-    chunk.forEach((item, itemIndex) => {
-      itemsByPage[pageNumber][pageNumber * size + itemIndex] = item
-    })
+  items.forEach((item, index) => {
+    itemsByIndex[startIndex + index] = item
   })
 
-  return itemsByPage
-}
-
-export const getRowDataByIndex = params => {
-  const { data, size, rowIndex } = params
-  const pageNumber = Math.floor(rowIndex / size)
-
-  return get(data, `${pageNumber}.${rowIndex}`, {}) || {}
-}
-
-export const getPagesToLoadByIndex = params => {
-  const { overscanStartIndex, overscanStopIndex, size } = params
-  const startPage = Math.ceil(overscanStartIndex / size)
-  const stopPage = Math.ceil(overscanStopIndex / size)
-
-  if (startPage === 0) {
-    return { startPage: 1, stopPage: 1 }
-  }
-
-  return { startPage, stopPage }
-}
-
-export const isDataLoadedForPage = params => {
-  const { data, page } = params
-  const dataByPage = omitBy(data[page], item => isNil(item))
-
-  return !isEmpty(dataByPage)
-}
-
-export const getOffsetAndLimitByPagesToLoad = params => {
-  const { pagesToLoad, data, size } = params
-  const result = { page: 0, size: 0 }
-  const notLoadedPages = []
-
-  pagesToLoad.forEach(page => {
-    const isPageLoaded = !isNil(get(data, `[${page}][0]`, null))
-
-    if (!isPageLoaded) {
-      notLoadedPages.push(page)
-    }
-  })
-
-  result.page = min(notLoadedPages)
-  result.size = (max(notLoadedPages) - min(notLoadedPages)) * size || size
-
-  return result
+  return itemsByIndex
 }

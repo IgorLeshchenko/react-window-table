@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { CellMeasurerCache } from 'react-virtualized'
@@ -29,7 +29,7 @@ const TableVirtualized = props => {
     minHeight: TableConstants.ROW_HEIGHT,
   })
   const [isCellModificationPending, setIsCellModificationPending] = useState(false)
-  const { data, count, noDataAvailable, onRowsRendered, isInitFetchDone } = useTableData({
+  const { data, count, noDataAvailable, handleLoadMoreData, isInitFetchDone } = useTableData({
     endpoint,
     filters,
     sortDirection,
@@ -69,13 +69,13 @@ const TableVirtualized = props => {
 
           {!noDataAvailable && (
             <TableBody
+              handleLoadMoreData={handleLoadMoreData}
               scrollElement={scrollElement}
               contentHeight={contentHeight}
               cache={cache}
               columns={columns}
               count={count}
               data={data}
-              onRowsRendered={onRowsRendered}
             />
           )}
         </div>
