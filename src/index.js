@@ -1,7 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { Fragment, useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
-import LoadingSkeleton from 'react-loading-skeleton'
 import Select from 'react-select'
 import makeAnimated from 'react-select/animated'
 import { find, isEmpty } from 'lodash'
@@ -18,7 +17,10 @@ const animatedComponents = makeAnimated()
 const App = () => {
   const [columns, setColumns] = useState(ColumnsConfig)
   const [sortParams, setSortParams] = useState({ dataKey: null, sortDirection: null })
-  const [filters, setFilters] = useState({})
+  const [filters, setFilters] = useState({
+    tailNumbers: [],
+  })
+  const possibleTailNumbers = ['N123AP', 'N412PS', 'N417HC', 'N44NJ', 'N849WC']
 
   // Table config
   const [columnsConfig, setColumnsConfig] = useState({
@@ -29,9 +31,11 @@ const App = () => {
     disableResize: [],
   })
 
-  const { isLoading, data, count, handleLoadMoreData, handleSort } = useTableData({
+  const { isLoading, data, count, handleLoadMoreData, handleSort, handleApplyFilter } = useTableData({
     endpoint: '/api/transactions',
-    filters,
+    filters: {
+      tailNumbers: filters.tailNumbers.map(filter => filter.value),
+    },
     sortDirection: sortParams.sortDirection,
     sortDataKey: sortParams.dataKey,
   })
@@ -134,6 +138,21 @@ const App = () => {
               value={columnsConfig.disableSort}
               onChange={value => {
                 setColumnsConfig(prevState => ({ ...prevState, disableSort: value }))
+              }}
+            />
+          </div>
+          <div className="sidebar-item topOffset">
+            <div className="selectTitle">Filter By Tail Number</div>
+            <Select
+              className="select"
+              components={animatedComponents}
+              isMulti
+              options={possibleTailNumbers.map(value => ({ value, label: value }))}
+              value={filters.tailNumbers}
+              onChange={value => {
+                setFilters(prevState => ({ ...prevState, tailNumbers: value || [] }))
+
+                return handleApplyFilter({ filters: { tailNumbers: value.map(item => item.value) } })
               }}
             />
           </div>

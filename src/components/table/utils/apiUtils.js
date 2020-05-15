@@ -1,13 +1,14 @@
-import { compact, every, forEach, isArray, isEmpty, isNil, isNull, isUndefined } from 'lodash'
+import { omitBy, compact, every, forEach, isArray, isEmpty, isNil, isNull, isUndefined } from 'lodash'
 
 export const formatFilterStrings = ({ filters }) => {
   const filterResults = []
+  const notNilFilters = omitBy(filters, filter => isNil(filter) || isEmpty(filter))
 
   if (isEmpty(filters)) {
     return filterResults
   }
 
-  forEach(filters, (value, key) => {
+  forEach(notNilFilters, (value, key) => {
     if (value !== '' && !isUndefined(value)) {
       const keyEncoded = encodeURIComponent(key)
 

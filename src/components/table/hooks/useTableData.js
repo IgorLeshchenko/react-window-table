@@ -56,6 +56,32 @@ const useTableData = ({ sortDataKey = null, sortDirection = null, filters = {}, 
       })
   }
 
+  const handleApplyFilter = ({ filters }) => {
+    setData({})
+    setIsLoading(true)
+
+    return ApiUtils.fetchData({
+      startIndex: 0,
+      stopIndex: 25,
+      endpoint,
+      sortDataKey,
+      sortDirection,
+      filters,
+    })
+      .then(({ items, count }) => {
+        const itemsByPage = ApiUtils.transformItemsToPages({
+          items,
+          startIndex: 0,
+        })
+
+        setData(itemsByPage)
+        setCount(count)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
+  }
+
   useEffect(() => {
     if (isLoading || isInitFetchDone) {
       return
@@ -84,13 +110,14 @@ const useTableData = ({ sortDataKey = null, sortDirection = null, filters = {}, 
         setIsInitFetchDone(true)
         setIsLoading(false)
       })
-  }, [isInitFetchDone, endpoint, sortDataKey, sortDirection, filters])
+  }, [isInitFetchDone, isLoading, endpoint, sortDataKey, sortDirection, filters])
 
   return {
     isLoading,
     data,
     count,
     handleSort,
+    handleApplyFilter,
     handleLoadMoreData: handleLoadMoreDataDebounced,
     noDataAvailable,
   }

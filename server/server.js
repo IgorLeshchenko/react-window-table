@@ -84,9 +84,19 @@ const generateTransactionsList = () => {
   }
 }
 
-const getOrderedList = (ordering = '') => {
-  if (!ordering) {
+const getFilteredList = ({ tailNumbers }) => {
+  if (!tailNumbers) {
     return transactionsList
+  }
+
+  const numbersList = tailNumbers.split(',')
+
+  return transactionsList.filter(item => numbersList.indexOf(item.plane.name) !== -1)
+}
+
+const getOrderedList = (list, ordering = '') => {
+  if (!ordering) {
+    return list
   }
 
   const orderingParts = ordering.split('-')
@@ -96,48 +106,49 @@ const getOrderedList = (ordering = '') => {
 
   switch (orderBy) {
     case 'id':
-      sortedList = _.sortBy(transactionsList, transaction => transaction.id)
+      sortedList = _.sortBy(list, transaction => transaction.id)
       break
     case 'date':
-      sortedList = _.sortBy(transactionsList, transaction => transaction.date)
+      sortedList = _.sortBy(list, transaction => transaction.date)
       break
     case 'category':
-      sortedList = _.sortBy(transactionsList, transaction => transaction.category.name)
+      sortedList = _.sortBy(list, transaction => transaction.category.name)
       break
     case 'subCategory':
-      sortedList = _.sortBy(transactionsList, transaction => transaction.subCategory.name)
+      sortedList = _.sortBy(list, transaction => transaction.subCategory.name)
       break
     case 'plane':
-      sortedList = _.sortBy(transactionsList, transaction => transaction.plane.name)
+      sortedList = _.sortBy(list, transaction => transaction.plane.name)
       break
     case 'tripNumber':
-      sortedList = _.sortBy(transactionsList, transaction => transaction.tripNumber)
+      sortedList = _.sortBy(list, transaction => transaction.tripNumber)
       break
     case 'cost':
-      sortedList = _.sortBy(transactionsList, transaction => transaction.cost.value)
+      sortedList = _.sortBy(list, transaction => transaction.cost.value)
       break
     case 'costOriginal':
-      sortedList = _.sortBy(transactionsList, transaction => transaction.costOriginal.value)
+      sortedList = _.sortBy(list, transaction => transaction.costOriginal.value)
       break
     case 'total':
-      sortedList = _.sortBy(transactionsList, transaction => transaction.total.value)
+      sortedList = _.sortBy(list, transaction => transaction.total.value)
       break
     case 'totalOriginal':
-      sortedList = _.sortBy(transactionsList, transaction => transaction.totalOriginal.value)
+      sortedList = _.sortBy(list, transaction => transaction.totalOriginal.value)
       break
     case 'exchangeRate':
-      sortedList = _.sortBy(transactionsList, transaction => transaction.exchangeRate)
+      sortedList = _.sortBy(list, transaction => transaction.exchangeRate)
       break
     default:
-      return transactionsList
+      return list
   }
 
   return isAsc ? sortedList : sortedList.reverse()
 }
 
 app.get('/api/transactions', function (req, res) {
-  const { limit = 0, offset = 25, ordering } = req.query
-  const orderedList = getOrderedList(ordering)
+  const { limit = 0, offset = 25, ordering, tailNumbers } = req.query
+  const filteredList = getFilteredList({ tailNumbers })
+  const orderedList = getOrderedList(filteredList, ordering)
 
   res.json({
     count: orderedList.length,
