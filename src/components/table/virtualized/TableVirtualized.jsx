@@ -13,7 +13,7 @@ import NoDataMessage from '../common/body/NoDataMessage'
 
 const TableVirtualized = props => {
   const {
-    isInitFetchDone,
+    isLoading,
     data,
     count,
     columns,
@@ -29,7 +29,6 @@ const TableVirtualized = props => {
     minHeight: TableConstants.ROW_HEIGHT,
   })
   const [isCellModificationPending, setIsCellModificationPending] = useState(false)
-  const noDataAvailable = isInitFetchDone && isEmpty(data)
 
   const handleResizeColumns = newColumns => {
     onColumnsResize(newColumns)
@@ -60,11 +59,11 @@ const TableVirtualized = props => {
         />
 
         <div className={classNames('scrollBody', { modifyActive: isCellModificationPending })}>
-          {!isInitFetchDone && <LoadingBody />}
+          {isLoading && <LoadingBody />}
 
-          {noDataAvailable && <NoDataMessage />}
+          {!isLoading && isEmpty(data) && <NoDataMessage />}
 
-          {!noDataAvailable && (
+          {!isLoading && !isEmpty(data) && (
             <TableBody
               handleLoadMoreData={onLoadMore}
               scrollElement={scrollElement}
@@ -83,7 +82,7 @@ const TableVirtualized = props => {
 }
 
 TableVirtualized.propTypes = {
-  isInitFetchDone: PropTypes.bool.isRequired,
+  isLoading: PropTypes.bool.isRequired,
   data: PropTypes.object.isRequired,
   count: PropTypes.number.isRequired,
   sortDataKey: PropTypes.string,

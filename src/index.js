@@ -29,7 +29,7 @@ const App = () => {
     disableResize: [],
   })
 
-  const { data, count, handleLoadMoreData, handleSort, isInitFetchDone } = useTableData({
+  const { isLoading, data, count, handleLoadMoreData, handleSort } = useTableData({
     endpoint: '/api/transactions',
     filters,
     sortDirection: sortParams.sortDirection,
@@ -64,7 +64,7 @@ const App = () => {
   return (
     <div className="app">
       <div className="header">
-        <LoadingSkeleton width={300} />
+        <div className="headerTitle">Tables POC</div>
       </div>
       <div className="content">
         <div className="sidebar">
@@ -144,7 +144,7 @@ const App = () => {
               <Fragment>
                 <div className="demo-body">
                   <TableVirtualized
-                    isInitFetchDone={isInitFetchDone}
+                    isLoading={isLoading}
                     data={data}
                     count={count}
                     columns={columns}

@@ -1,23 +1,19 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import * as ApiUtils from '../utils/apiUtils'
+import { debounce } from 'lodash'
 
 const useTableData = ({ sortDataKey = null, sortDirection = null, filters = {}, endpoint }) => {
   const [isInitFetchDone, setIsInitFetchDone] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [data, setData] = useState({})
   const [count, setCount] = useState(0)
-  const isLoading = useRef(false)
   const noDataAvailable = isInitFetchDone && !count
-  const overscanStartIndex = useRef(0)
-  const overscanStopIndex = useRef(25)
 
   const handleLoadMoreData = ({ startIndex, stopIndex }) => {
-    overscanStartIndex.current = startIndex
-    overscanStopIndex.current = stopIndex + 1
-
     ApiUtils.fetchData({
-      startIndex: overscanStartIndex.current,
-      stopIndex: overscanStopIndex.current,
+      startIndex,
+      stopIndex: stopIndex + 1,
       endpoint,
       sortDataKey,
       sortDirection,
@@ -25,46 +21,47 @@ const useTableData = ({ sortDataKey = null, sortDirection = null, filters = {}, 
     }).then(({ items, count }) => {
       const itemsByPage = ApiUtils.transformItemsToPages({
         items,
-        startIndex: overscanStartIndex.current,
+        startIndex,
       })
 
       setData({ ...data, ...itemsByPage })
       setCount(count)
     })
   }
+  const handleLoadMoreDataDebounced = debounce(handleLoadMoreData, 150)
 
   const handleSort = ({ sortDataKey, sortDirection }) => {
-    const startIndex = overscanStartIndex.current < 25 ? 0 : overscanStartIndex.current - 25
-    const stopIndex = overscanStopIndex.current + 25
-
     setData({})
+    setIsLoading(true)
 
     return ApiUtils.fetchData({
-      startIndex,
-      stopIndex,
+      startIndex: 0,
+      stopIndex: 25,
       endpoint,
       sortDataKey,
       sortDirection,
       filters,
-    }).then(({ items, count }) => {
-      const itemsByPage = ApiUtils.transformItemsToPages({
-        items,
-        startIndex: overscanStartIndex.current,
-      })
-
-      setData(itemsByPage)
-      setCount(count)
-
-      return { startIndex, stopIndex }
     })
+      .then(({ items, count }) => {
+        const itemsByPage = ApiUtils.transformItemsToPages({
+          items,
+          startIndex: 0,
+        })
+
+        setData(itemsByPage)
+        setCount(count)
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
   }
 
   useEffect(() => {
-    if (isLoading.current || isInitFetchDone) {
+    if (isLoading || isInitFetchDone) {
       return
     }
 
-    isLoading.current = true
+    setIsLoading(true)
 
     ApiUtils.fetchData({
       startIndex: 0,
@@ -85,17 +82,17 @@ const useTableData = ({ sortDataKey = null, sortDirection = null, filters = {}, 
       })
       .finally(() => {
         setIsInitFetchDone(true)
-        isLoading.current = false
+        setIsLoading(false)
       })
   }, [isInitFetchDone, endpoint, sortDataKey, sortDirection, filters])
 
   return {
+    isLoading,
     data,
     count,
     handleSort,
-    handleLoadMoreData,
+    handleLoadMoreData: handleLoadMoreDataDebounced,
     noDataAvailable,
-    isInitFetchDone,
   }
 }
 
