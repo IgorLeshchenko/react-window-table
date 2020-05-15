@@ -127,17 +127,7 @@ TableHeader.propTypes = {
   onColumnsResize: PropTypes.func,
   onColumnsReorderStart: PropTypes.func,
   onColumnsReorder: PropTypes.func,
-  columns: PropTypes.arrayOf(
-    PropTypes.shape({
-      dataKey: PropTypes.string.isRequired,
-      label: PropTypes.string,
-      width: PropTypes.number,
-      minResizeWidth: PropTypes.number,
-      maxResizeWidth: PropTypes.number,
-      defaultWidth: PropTypes.number.isRequired,
-      headerRenderer: PropTypes.func,
-    }),
-  ).isRequired,
+  columns: PropTypes.array.isRequired,
 }
 
 TableHeader.defaultProps = {

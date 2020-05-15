@@ -8,11 +8,16 @@ const useTableData = ({ sortDataKey = null, sortDirection = null, filters = {}, 
   const [count, setCount] = useState(0)
   const isLoading = useRef(false)
   const noDataAvailable = isInitFetchDone && !count
+  const overscanStartIndex = useRef(0)
+  const overscanStopIndex = useRef(25)
 
   const handleLoadMoreData = ({ startIndex, stopIndex }) => {
+    overscanStartIndex.current = startIndex
+    overscanStopIndex.current = stopIndex + 1
+
     ApiUtils.fetchData({
-      startIndex,
-      stopIndex: stopIndex + 1,
+      startIndex: overscanStartIndex.current,
+      stopIndex: overscanStopIndex.current,
       endpoint,
       sortDataKey,
       sortDirection,
@@ -20,11 +25,37 @@ const useTableData = ({ sortDataKey = null, sortDirection = null, filters = {}, 
     }).then(({ items, count }) => {
       const itemsByPage = ApiUtils.transformItemsToPages({
         items,
-        startIndex,
+        startIndex: overscanStartIndex.current,
       })
 
       setData({ ...data, ...itemsByPage })
       setCount(count)
+    })
+  }
+
+  const handleSort = ({ sortDataKey, sortDirection }) => {
+    const startIndex = overscanStartIndex.current < 25 ? 0 : overscanStartIndex.current - 25
+    const stopIndex = overscanStopIndex.current + 25
+
+    setData({})
+
+    return ApiUtils.fetchData({
+      startIndex,
+      stopIndex,
+      endpoint,
+      sortDataKey,
+      sortDirection,
+      filters,
+    }).then(({ items, count }) => {
+      const itemsByPage = ApiUtils.transformItemsToPages({
+        items,
+        startIndex: overscanStartIndex.current,
+      })
+
+      setData(itemsByPage)
+      setCount(count)
+
+      return { startIndex, stopIndex }
     })
   }
 
@@ -61,6 +92,7 @@ const useTableData = ({ sortDataKey = null, sortDirection = null, filters = {}, 
   return {
     data,
     count,
+    handleSort,
     handleLoadMoreData,
     noDataAvailable,
     isInitFetchDone,

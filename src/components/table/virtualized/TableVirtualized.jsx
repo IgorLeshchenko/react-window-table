@@ -2,8 +2,8 @@ import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { CellMeasurerCache } from 'react-virtualized'
+import { isEmpty } from 'lodash'
 
-import useTableData from '../hooks/useTableData'
 import * as TableConstants from '../utils/constants'
 
 import TableHeader from './TableHeader'
@@ -13,28 +13,24 @@ import NoDataMessage from '../common/body/NoDataMessage'
 
 const TableVirtualized = props => {
   const {
-    scrollElement,
-    contentHeight,
-    endpoint,
-    filters,
-    sortDirection,
-    sortDataKey,
+    isInitFetchDone,
+    data,
+    count,
     columns,
+    contentHeight,
+    scrollElement,
+    onLoadMore,
+    onListSort,
     onColumnsResize,
     onColumnsReorder,
-    onListSort,
   } = props
   const cache = new CellMeasurerCache({
     fixedWidth: true,
     minHeight: TableConstants.ROW_HEIGHT,
   })
   const [isCellModificationPending, setIsCellModificationPending] = useState(false)
-  const { data, count, noDataAvailable, handleLoadMoreData, isInitFetchDone } = useTableData({
-    endpoint,
-    filters,
-    sortDirection,
-    sortDataKey,
-  })
+  const noDataAvailable = isInitFetchDone && isEmpty(data)
+
   const handleResizeColumns = newColumns => {
     onColumnsResize(newColumns)
     setIsCellModificationPending(false)
@@ -46,8 +42,9 @@ const TableVirtualized = props => {
     cache.clearAll()
   }
   const handleSortList = params => {
-    onListSort(params)
-    cache.clearAll()
+    onListSort(params).then(() => {
+      cache.clearAll()
+    })
   }
 
   return (
@@ -69,7 +66,7 @@ const TableVirtualized = props => {
 
           {!noDataAvailable && (
             <TableBody
-              handleLoadMoreData={handleLoadMoreData}
+              handleLoadMoreData={onLoadMore}
               scrollElement={scrollElement}
               contentHeight={contentHeight}
               cache={cache}
@@ -86,13 +83,15 @@ const TableVirtualized = props => {
 }
 
 TableVirtualized.propTypes = {
-  scrollElement: PropTypes.any.isRequired,
-  contentHeight: PropTypes.number.isRequired,
-  endpoint: PropTypes.string.isRequired,
-  sortDirection: PropTypes.string,
+  isInitFetchDone: PropTypes.bool.isRequired,
+  data: PropTypes.object.isRequired,
+  count: PropTypes.number.isRequired,
   sortDataKey: PropTypes.string,
-  filters: PropTypes.object,
+  sortDirection: PropTypes.string,
+  contentHeight: PropTypes.number.isRequired,
+  scrollElement: PropTypes.any.isRequired,
   columns: PropTypes.array.isRequired,
+  onLoadMore: PropTypes.func.isRequired,
   onListSort: PropTypes.func,
   onColumnsReorder: PropTypes.func,
   onColumnsResize: PropTypes.func,

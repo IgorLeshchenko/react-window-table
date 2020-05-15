@@ -7,7 +7,7 @@ import makeAnimated from 'react-select/animated'
 import { find, isEmpty } from 'lodash'
 
 import ColumnsConfig from './columns'
-import { getUsersList } from './api/mockUserApi'
+import useTableData from './components/table/hooks/useTableData'
 import { ScrollWrapper, TableVirtualized } from './components/table'
 
 import 'react-virtualized/styles.css'
@@ -18,6 +18,7 @@ const animatedComponents = makeAnimated()
 const App = () => {
   const [columns, setColumns] = useState(ColumnsConfig)
   const [sortParams, setSortParams] = useState({ dataKey: null, sortDirection: null })
+  const [filters, setFilters] = useState({})
 
   // Table config
   const [columnsConfig, setColumnsConfig] = useState({
@@ -28,6 +29,13 @@ const App = () => {
     disableResize: [],
   })
 
+  const { data, count, handleLoadMoreData, handleSort, isInitFetchDone } = useTableData({
+    endpoint: '/api/transactions',
+    filters,
+    sortDirection: sortParams.sortDirection,
+    sortDataKey: sortParams.dataKey,
+  })
+
   const handleSortColumns = newColumnsList => {
     setColumns(() => newColumnsList)
   }
@@ -36,6 +44,8 @@ const App = () => {
   }
   const handleSortList = ({ dataKey, sortDirection }) => {
     setSortParams(prevState => ({ ...prevState, dataKey, sortDirection }))
+
+    return handleSort({ sortDataKey: dataKey, sortDirection })
   }
 
   useEffect(() => {
@@ -134,14 +144,15 @@ const App = () => {
               <Fragment>
                 <div className="demo-body">
                   <TableVirtualized
-                    scrollElement={scrollElement}
-                    contentHeight={height}
-                    endpoint="/api/transactions"
-                    filters={{}}
+                    isInitFetchDone={isInitFetchDone}
+                    data={data}
+                    count={count}
+                    columns={columns}
                     sortDataKey={sortParams.dataKey}
                     sortDirection={sortParams.sortDirection}
-                    columns={columns}
-                    handleLoadListPage={getUsersList}
+                    scrollElement={scrollElement}
+                    contentHeight={height}
+                    onLoadMore={handleLoadMoreData}
                     onListSort={handleSortList}
                     onColumnsReorder={handleSortColumns}
                     onColumnsResize={handleColumnsResize}
