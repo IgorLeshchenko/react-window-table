@@ -18,12 +18,19 @@ export const getSortDirection = params => {
 export const sortColumnsByStickyStatusAndVisibility = columns => {
   const stickToLeftColumns = columns.filter(column => column.isStickToLeft && !column.isHidden)
   const stickToRightColumns = columns.filter(column => column.isStickToRight && !column.isHidden)
-  const notStickedColumns = columns.filter(
-    column => !column.isStickToLeft && !column.isStickToRight && !column.isHidden,
-  )
+  const notStickedColumns = columns.filter(column => !column.isStickToLeft && !column.isStickToRight)
 
   return [...stickToLeftColumns, ...notStickedColumns, ...stickToRightColumns]
 }
 
 export const getColumnsTotalWidth = columns =>
-  columns.reduce((acc, value) => acc + (value.width || value.defaultWidth) + TableConstants.CELL_RIGHT_MARGIN, 0)
+  columns.reduce((acc, value) => {
+    const columnWidth = value.width || value.defaultWidth
+
+    if (value.isHidden) {
+      return acc
+    }
+
+    return acc + columnWidth + TableConstants.CELL_RIGHT_MARGIN
+  }, 0)
+

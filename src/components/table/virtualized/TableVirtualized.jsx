@@ -1,8 +1,7 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { CellMeasurerCache } from 'react-virtualized'
-import { debounce } from 'lodash'
 
 import useTableData from '../hooks/useTableData'
 import * as TableConstants from '../utils/constants'
@@ -11,6 +10,11 @@ import TableHeader from './TableHeader'
 import TableBody from './TableBody'
 import LoadingBody from '../common/body/LoadingBody'
 import NoDataMessage from '../common/body/NoDataMessage'
+
+const cache = new CellMeasurerCache({
+  fixedWidth: true,
+  minHeight: TableConstants.ROW_HEIGHT,
+})
 
 const TableVirtualized = props => {
   const {
@@ -25,12 +29,8 @@ const TableVirtualized = props => {
     onColumnsReorder,
     onListSort,
   } = props
-  const cache = new CellMeasurerCache({
-    fixedWidth: true,
-    minHeight: TableConstants.ROW_HEIGHT,
-  })
   const [isCellModificationPending, setIsCellModificationPending] = useState(false)
-  const { data, count, noDataAvailable, isInitFetchDone } = useTableData({
+  const { data, count, noDataAvailable, onRowsRendered, isInitFetchDone } = useTableData({
     endpoint,
     filters,
     sortDirection,
@@ -50,15 +50,8 @@ const TableVirtualized = props => {
     onListSort(params)
     cache.clearAll()
   }
-  const handleRowsRendered = params => {
-    const { startIndex, stopIndex } = params
-    const startLoad = startIndex < 25 ? startIndex : startIndex - 25
-    const stopLoad = stopIndex < count - 25 ? stopIndex + 25 : count
 
-    console.log('visible', startIndex, stopIndex)
-    console.log('should load', { startLoad, stopLoad })
-  }
-  const handleRowsRenderedDebounced = debounce(handleRowsRendered, 150)
+  useEffect(() => () => cache.clearAll())
 
   return (
     <Fragment>
@@ -85,7 +78,7 @@ const TableVirtualized = props => {
               columns={columns}
               count={count}
               data={data}
-              onRowsRendered={handleRowsRenderedDebounced}
+              onRowsRendered={onRowsRendered}
             />
           )}
         </div>

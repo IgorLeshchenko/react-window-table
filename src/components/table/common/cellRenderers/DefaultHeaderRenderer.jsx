@@ -13,6 +13,7 @@ const DefaultHeaderRenderer = props => {
     isStickToLeft,
     isStickToRight,
     isResizeDisabled,
+    isSortDisabled,
     label,
     dataKey,
     headerRenderer,
@@ -24,7 +25,8 @@ const DefaultHeaderRenderer = props => {
     onResizeEnd,
   } = props
   const nextSortDirection = TableUtils.getSortDirection({ dataKey, sortDataKey, sortDirection })
-  const onCellClick = onListSort ? () => onListSort({ dataKey, sortDirection: nextSortDirection }) : noop
+  const onCellClick =
+    onListSort && !isSortDisabled ? () => onListSort({ dataKey, sortDirection: nextSortDirection }) : noop
 
   return (
     <div className="cellContainer" onMouseDown={onCellClick}>
@@ -33,7 +35,9 @@ const DefaultHeaderRenderer = props => {
           {headerRenderer ? headerRenderer : <div className="text">{label ? label : null}</div>}
         </div>
 
-        <div className="sortContainer">{sortDataKey === dataKey && <SortHandler sortDirection={sortDirection} />}</div>
+        <div className="sortContainer">
+          {sortDataKey === dataKey && !isSortDisabled && <SortHandler sortDirection={sortDirection} />}
+        </div>
 
         {!isStickToLeft && !isStickToRight && (
           <div className="reorderContainer" onMouseDown={event => TableUtils.stopEvent(event)}>
@@ -59,6 +63,7 @@ DefaultHeaderRenderer.propTypes = {
   isStickToLeft: PropTypes.bool,
   isStickToRight: PropTypes.bool,
   isResizeDisabled: PropTypes.bool,
+  isSortDisabled: PropTypes.bool,
   label: PropTypes.string,
   dataKey: PropTypes.string.isRequired,
   sortDataKey: PropTypes.string,

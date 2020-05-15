@@ -1,4 +1,19 @@
-import { chunk, compact, every, forEach, get, isArray, isEmpty, isNil, isNull, isUndefined, times } from 'lodash'
+import {
+  chunk,
+  compact,
+  every,
+  forEach,
+  get,
+  isArray,
+  isEmpty,
+  isNil,
+  isNull,
+  isUndefined,
+  max,
+  min,
+  times,
+  omitBy,
+} from 'lodash'
 
 export const formatFilterStrings = ({ filters }) => {
   const filterResults = []
@@ -113,4 +128,42 @@ export const getRowDataByIndex = params => {
   const pageNumber = Math.floor(rowIndex / size)
 
   return get(data, `${pageNumber}.${rowIndex}`, {}) || {}
+}
+
+export const getPagesToLoadByIndex = params => {
+  const { overscanStartIndex, overscanStopIndex, size } = params
+  const startPage = Math.ceil(overscanStartIndex / size)
+  const stopPage = Math.ceil(overscanStopIndex / size)
+
+  if (startPage === 0) {
+    return { startPage: 1, stopPage: 1 }
+  }
+
+  return { startPage, stopPage }
+}
+
+export const isDataLoadedForPage = params => {
+  const { data, page } = params
+  const dataByPage = omitBy(data[page], item => isNil(item))
+
+  return !isEmpty(dataByPage)
+}
+
+export const getOffsetAndLimitByPagesToLoad = params => {
+  const { pagesToLoad, data, size } = params
+  const result = { page: 0, size: 0 }
+  const notLoadedPages = []
+
+  pagesToLoad.forEach(page => {
+    const isPageLoaded = !isNil(get(data, `[${page}][0]`, null))
+
+    if (!isPageLoaded) {
+      notLoadedPages.push(page)
+    }
+  })
+
+  result.page = min(notLoadedPages)
+  result.size = (max(notLoadedPages) - min(notLoadedPages)) * size || size
+
+  return result
 }

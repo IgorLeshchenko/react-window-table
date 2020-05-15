@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import ArrayMove from 'array-move'
@@ -22,9 +22,16 @@ const TableHeader = props => {
     onColumnsResize,
   } = props
   const { columns, columnsWidth, onResize } = useColumnsDimensions(props.columns)
-  const onSortEnd = ({ oldIndex, newIndex }) => {
-    onColumnsReorder(ArrayMove(columns, oldIndex, newIndex))
-  }
+  const visibleColumns = columns.filter(({ isHidden }) => !isHidden)
+  const onSortEnd = useCallback(
+    ({ oldIndex, newIndex }) => {
+      const invisibleColumns = columns.filter(({ isHidden }) => isHidden)
+      const newVisibleColumns = ArrayMove(visibleColumns, oldIndex, newIndex)
+
+      onColumnsReorder([...invisibleColumns, ...newVisibleColumns])
+    },
+    [columns, visibleColumns, onColumnsReorder],
+  )
   const onResizeEnd = () => {
     onColumnsResize(columns)
   }
@@ -59,11 +66,12 @@ const TableHeader = props => {
         rowGetter={() => {
           throw new Error('Logic Error')
         }}>
-        {columns.map((column, index) => {
+        {visibleColumns.map((column, index) => {
           const {
             isResizeDisabled,
             isStickToLeft,
             isStickToRight,
+            isSortDisabled,
             label,
             dataKey,
             width,
@@ -83,12 +91,14 @@ const TableHeader = props => {
                 isStickToLeft,
                 isStickToRight,
                 isResizeDisabled,
+                isSortDisabled,
               })}
               headerRenderer={() =>
                 DefaultHeaderRenderer({
                   isResizeDisabled,
                   isStickToLeft,
                   isStickToRight,
+                  isSortDisabled,
                   label,
                   headerRenderer,
                   dataKey,

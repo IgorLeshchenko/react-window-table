@@ -10,6 +10,7 @@ import DefaultCellRenderer from '../common/cellRenderers/DefaultCellRenderer'
 const TableBody = props => {
   const { data, contentHeight, count, cache, scrollElement, onRowsRendered } = props
   const { columns, columnsWidth } = useColumnsDimensions(props.columns)
+  const visibleColumns = columns.filter(({ isHidden }) => !isHidden)
 
   return (
     <WindowScroller scrollElement={scrollElement.current}>
@@ -31,7 +32,7 @@ const TableBody = props => {
             overscanRowCount={0}
             onRowsRendered={onRowsRendered}
             deferredMeasurementCache={cache}>
-            {columns.map((column, index) => {
+            {visibleColumns.map((column, index) => {
               const { label, dataKey, width, defaultWidth, cellRenderer } = column
 
               return (

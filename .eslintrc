@@ -7,7 +7,7 @@
     "browser": true
   },
   "extends": ["last", "prettier/react", "plugin:react/recommended"],
-  "plugins": ["prettier", "react-hooks"],
+  "plugins": ["prettier"],
   "rules": {
     "no-duplicate-imports": "error",
     "prettier/prettier": "error",

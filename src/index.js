@@ -1,6 +1,10 @@
-import React, { Fragment, useState } from 'react'
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { Fragment, useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
 import LoadingSkeleton from 'react-loading-skeleton'
+import Select from 'react-select'
+import makeAnimated from 'react-select/animated'
+import { find, isEmpty } from 'lodash'
 
 import ColumnsConfig from './columns'
 import { getUsersList } from './api/mockUserApi'
@@ -9,10 +13,21 @@ import { ScrollWrapper, TableVirtualized } from './components/table'
 import 'react-virtualized/styles.css'
 import './index.scss'
 
+const animatedComponents = makeAnimated()
+
 const App = () => {
-  const [scrollElement, setScrollElement] = useState(null)
   const [columns, setColumns] = useState(ColumnsConfig)
   const [sortParams, setSortParams] = useState({ dataKey: null, sortDirection: null })
+
+  // Table config
+  const [columnsConfig, setColumnsConfig] = useState({
+    hidden: [],
+    stickToLeft: [],
+    stickToRight: [],
+    disableSort: [],
+    disableResize: [],
+  })
+
   const handleSortColumns = newColumnsList => {
     setColumns(() => newColumnsList)
   }
@@ -23,6 +38,19 @@ const App = () => {
     setSortParams(prevState => ({ ...prevState, dataKey, sortDirection }))
   }
 
+  useEffect(() => {
+    const updatedColumns = columns.map(column => ({
+      ...column,
+      isStickToLeft: !isEmpty(find(columnsConfig.stickToLeft, { value: column.dataKey })),
+      isStickToRight: !isEmpty(find(columnsConfig.stickToRight, { value: column.dataKey })),
+      isResizeDisabled: !isEmpty(find(columnsConfig.disableResize, { value: column.dataKey })),
+      isSortDisabled: !isEmpty(find(columnsConfig.disableSort, { value: column.dataKey })),
+      isHidden: !isEmpty(find(columnsConfig.hidden, { value: column.dataKey })),
+    }))
+
+    setColumns(() => updatedColumns)
+  }, [columnsConfig])
+
   return (
     <div className="app">
       <div className="header">
@@ -31,35 +59,79 @@ const App = () => {
       <div className="content">
         <div className="sidebar">
           <div className="sidebar-item">
-            <LoadingSkeleton width={220} />
+            <div className="selectTitle">Hidden Columns</div>
+            <Select
+              className="select"
+              components={animatedComponents}
+              isMulti
+              options={columns.map(column => ({ value: column.dataKey, label: column.label }))}
+              value={columnsConfig.hidden}
+              onChange={value => {
+                setColumnsConfig(prevState => ({ ...prevState, hidden: value }))
+              }}
+            />
           </div>
           <div className="sidebar-item">
-            <LoadingSkeleton width={120} />
+            <div className="selectTitle">Stick To Left Columns</div>
+            <Select
+              className="select"
+              components={animatedComponents}
+              isMulti
+              options={columns
+                .filter(({ isStickToRight }) => !isStickToRight)
+                .map(column => ({ value: column.dataKey, label: column.label }))}
+              value={columnsConfig.stickToLeft}
+              onChange={value => {
+                setColumnsConfig(prevState => ({ ...prevState, stickToLeft: value }))
+              }}
+            />
           </div>
           <div className="sidebar-item">
-            <LoadingSkeleton width={250} />
+            <div className="selectTitle">Stick To Right Columns</div>
+            <Select
+              className="select"
+              components={animatedComponents}
+              isMulti
+              options={columns
+                .filter(({ isStickToLeft }) => !isStickToLeft)
+                .map(column => ({ value: column.dataKey, label: column.label }))}
+              value={columnsConfig.stickToRight}
+              onChange={value => {
+                setColumnsConfig(prevState => ({ ...prevState, stickToRight: value }))
+              }}
+            />
           </div>
           <div className="sidebar-item">
-            <LoadingSkeleton width={250} />
+            <div className="selectTitle">Disable Resize Columns</div>
+            <Select
+              className="select"
+              components={animatedComponents}
+              isMulti
+              options={columns.map(column => ({ value: column.dataKey, label: column.label }))}
+              value={columnsConfig.disableResize}
+              onChange={value => {
+                setColumnsConfig(prevState => ({ ...prevState, disableResize: value }))
+              }}
+            />
           </div>
           <div className="sidebar-item">
-            <LoadingSkeleton width={230} />
+            <div className="selectTitle">Disable Sorting Columns</div>
+            <Select
+              className="select"
+              components={animatedComponents}
+              isMulti
+              options={columns.map(column => ({ value: column.dataKey, label: column.label }))}
+              value={columnsConfig.disableSort}
+              onChange={value => {
+                setColumnsConfig(prevState => ({ ...prevState, disableSort: value }))
+              }}
+            />
           </div>
         </div>
-        <div className="content-body" id="scrollBody" ref={setScrollElement}>
-          <ScrollWrapper scrollElement={scrollElement}>
+        <div className="content-body">
+          <ScrollWrapper>
             {({ height, scrollElement }) => (
               <Fragment>
-                <div className="demo-container">
-                  <div className="title">Table Settings</div>
-                  <div className="row">
-                    <div className="col">1</div>
-                    <div className="col">2</div>
-                    <div className="col">3</div>
-                    <div className="col">4</div>
-                  </div>
-                </div>
-
                 <div className="demo-body">
                   <TableVirtualized
                     scrollElement={scrollElement}
