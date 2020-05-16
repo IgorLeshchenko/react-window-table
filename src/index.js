@@ -9,6 +9,13 @@ import ColumnsConfig from './columns'
 import useTableData from './components/table/hooks/useTableData'
 import { ScrollWrapper, TableVirtualized } from './components/table'
 
+// Cell Renderers:
+import SimpleLinkCellRenderer from './components/table/cellRenderers/common/SimpleLinkCellRenderer'
+import SimpleDateCellRenderer from './components/table/cellRenderers/common/SimpleDateCellRenderer'
+import SimpleTextCellRenderer from './components/table/cellRenderers/common/SimpleTextCellRenderer'
+import SinglePlaneCellRenderer from './components/table/cellRenderers/plane/SinglePlaneCellRenderer'
+import SimpleCurrencyCellRenderer from './components/table/cellRenderers/currency/SimpleCurrencyCellRenderer'
+
 import 'react-virtualized/styles.css'
 import './index.scss'
 
@@ -166,7 +173,20 @@ const App = () => {
                     isLoading={isLoading}
                     data={data}
                     count={count}
-                    columns={columns}
+                    cellSettings={columns}
+                    cellRenderers={{
+                      id: ({ rowData }) => <SimpleLinkCellRenderer text={rowData.id} />,
+                      date: ({ rowData }) => <SimpleDateCellRenderer date={rowData.date} />,
+                      tripNumber: ({ rowData }) => <SimpleTextCellRenderer text={rowData.tripNumber} />,
+                      category: ({ rowData }) => <SimpleTextCellRenderer text={rowData.category.name} />,
+                      subCategory: ({ rowData }) => <SimpleTextCellRenderer text={rowData.subCategory.name} />,
+                      plane: ({ rowData }) => <SinglePlaneCellRenderer plane={rowData.plane} />,
+                      cost: ({ rowData }) => <SimpleCurrencyCellRenderer data={rowData.cost} />,
+                      costOriginal: ({ rowData }) => <SimpleCurrencyCellRenderer data={rowData.costOriginal} />,
+                      total: ({ rowData }) => <SimpleCurrencyCellRenderer data={rowData.total} />,
+                      totalOriginal: ({ rowData }) => <SimpleCurrencyCellRenderer data={rowData.totalOriginal} />,
+                      exchangeRate: ({ rowData }) => <SimpleTextCellRenderer text={rowData.exchangeRate} />,
+                    }}
                     sortDataKey={sortParams.dataKey}
                     sortDirection={sortParams.sortDirection}
                     scrollElement={scrollElement}

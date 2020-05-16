@@ -4,14 +4,14 @@ import { findIndex } from 'lodash'
 import * as TableUtils from '../utils/utils'
 import * as TableConstants from '../utils/constants'
 
-const useColumnsDimensions = initialColumns => {
-  const [columns, setColumns] = useState(TableUtils.sortColumnsByStickyStatusAndVisibility(initialColumns))
-  const [columnsWidth, setColumnsWidth] = useState(TableUtils.getColumnsTotalWidth(initialColumns))
+const useColumnsDimensions = cellSettings => {
+  const [columns, setColumns] = useState(TableUtils.sortColumnsByStickyStatusAndVisibility(cellSettings))
+  const [columnsWidth, setColumnsWidth] = useState(TableUtils.getColumnsTotalWidth(cellSettings))
 
   useEffect(() => {
-    setColumns(TableUtils.sortColumnsByStickyStatusAndVisibility(initialColumns))
-    setColumnsWidth(TableUtils.getColumnsTotalWidth(initialColumns))
-  }, [initialColumns])
+    setColumns(TableUtils.sortColumnsByStickyStatusAndVisibility(cellSettings))
+    setColumnsWidth(TableUtils.getColumnsTotalWidth(cellSettings))
+  }, [cellSettings])
 
   const onResize = ({ dataKey, deltaX }) => {
     const resizeIndex = findIndex(columns, cell => cell.dataKey === dataKey)

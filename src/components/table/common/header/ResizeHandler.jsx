@@ -8,7 +8,7 @@ import * as TableUtils from '../../utils/utils'
 const ResizeHandler = ({ isResizeDisabled, dataKey, onResizeStart, onResize, onResizeEnd }) => (
   <Draggable
     disabled={isResizeDisabled}
-    handle=".resizeIconWrapper"
+    handle=".resizeContainer"
     axis="x"
     defaultClassName="DragHandle"
     defaultClassNameDragging="DragHandleActive"
@@ -27,7 +27,8 @@ const ResizeHandler = ({ isResizeDisabled, dataKey, onResizeStart, onResize, onR
     position={{ x: 0 }}
     zIndex={999}>
     <div
-      className={classNames('resizeIconWrapper', { disabled: isResizeDisabled })}
+      className={classNames('resizeContainer', { disabled: isResizeDisabled })}
+      onMouseDown={event => TableUtils.stopEvent(event)}
       onClick={event => TableUtils.stopEvent(event)}>
       <div className="resizeIcon" />
     </div>

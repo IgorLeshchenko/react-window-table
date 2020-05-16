@@ -1,6 +1,5 @@
 import React, { Fragment, useState } from 'react'
 import PropTypes from 'prop-types'
-import classNames from 'classnames'
 import { CellMeasurerCache } from 'react-virtualized'
 import { isEmpty } from 'lodash'
 
@@ -16,7 +15,10 @@ const TableVirtualized = props => {
     isLoading,
     data,
     count,
-    columns,
+    sortDataKey,
+    sortDirection,
+    cellSettings,
+    cellRenderers,
     contentHeight,
     scrollElement,
     onLoadMore,
@@ -28,55 +30,53 @@ const TableVirtualized = props => {
     fixedWidth: true,
     minHeight: TableConstants.ROW_HEIGHT,
   })
-  const [isCellModificationPending, setIsCellModificationPending] = useState(false)
+  const [isHeaderModifying, setIsHeaderModifying] = useState(false)
 
   const handleResizeColumns = newColumns => {
     onColumnsResize(newColumns)
-    setIsCellModificationPending(false)
-    cache.clearAll()
+    setIsHeaderModifying(false)
   }
   const handleReorderColumns = newColumns => {
     onColumnsReorder(newColumns)
-    setIsCellModificationPending(false)
-    cache.clearAll()
+    setIsHeaderModifying(false)
   }
   const handleSortList = params => {
-    onListSort(params).then(() => {
-      cache.clearAll()
-    })
+    onListSort(params)
   }
 
   return (
     <Fragment>
       <div className="windowScrollerWrapper">
         <TableHeader
-          {...props}
+          headerHeight={TableConstants.HEADER_HEIGHT}
+          sortDataKey={sortDataKey}
+          sortDirection={sortDirection}
+          cellSettings={cellSettings}
           onListSort={handleSortList}
-          onColumnsResizeStart={() => setIsCellModificationPending(true)}
-          onColumnsReorderStart={() => setIsCellModificationPending(true)}
+          onColumnsResizeStart={() => setIsHeaderModifying(true)}
+          onColumnsReorderStart={() => setIsHeaderModifying(true)}
           onColumnsResize={handleResizeColumns}
           onColumnsReorder={handleReorderColumns}
         />
 
-        <div className={classNames('scrollBody', { modifyActive: isCellModificationPending })}>
-          {isLoading && <LoadingBody />}
+        {isLoading && <LoadingBody />}
 
-          {!isLoading && isEmpty(data) && <NoDataMessage />}
+        {!isLoading && isEmpty(data) && <NoDataMessage />}
 
-          {!isLoading && !isEmpty(data) && (
-            <TableBody
-              handleLoadMoreData={onLoadMore}
-              scrollElement={scrollElement}
-              contentHeight={contentHeight}
-              cache={cache}
-              columns={columns}
-              count={count}
-              data={data}
-            />
-          )}
-        </div>
+        {!isLoading && !isEmpty(data) && (
+          <TableBody
+            isHeaderModifying={isHeaderModifying}
+            data={data}
+            count={count}
+            cache={cache}
+            cellSettings={cellSettings}
+            cellRenderers={cellRenderers}
+            scrollElement={scrollElement}
+            contentHeight={contentHeight}
+            handleLoadMoreData={onLoadMore}
+          />
+        )}
       </div>
-      <div className="bottomSpacer" />
     </Fragment>
   )
 }
@@ -89,7 +89,8 @@ TableVirtualized.propTypes = {
   sortDirection: PropTypes.string,
   contentHeight: PropTypes.number.isRequired,
   scrollElement: PropTypes.any.isRequired,
-  columns: PropTypes.array.isRequired,
+  cellSettings: PropTypes.array.isRequired,
+  cellRenderers: PropTypes.object.isRequired,
   onLoadMore: PropTypes.func.isRequired,
   onListSort: PropTypes.func,
   onColumnsReorder: PropTypes.func,

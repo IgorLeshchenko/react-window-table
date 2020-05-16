@@ -1,10 +1,3 @@
-import React from 'react'
-
-import SimpleTextCellRenderer from './components/table/cellRenderers/common/SimpleTextCellRenderer'
-import SimpleDateCellRenderer from './components/table/cellRenderers/common/SimpleDateCellRenderer'
-import SinglePlaneCellRenderer from './components/table/cellRenderers/plane/SinglePlaneCellRenderer'
-import SimpleCurrencyCellRenderer from './components/table/cellRenderers/currency/SimpleCurrencyCellRenderer'
-
 const ColumnsConfig = [
   {
     isStickToLeft: false,
@@ -16,7 +9,6 @@ const ColumnsConfig = [
     dataKey: 'id',
     width: null,
     defaultWidth: 50,
-    cellRenderer: ({ rowData }) => <SimpleTextCellRenderer text={rowData.id} />,
   },
   {
     isStickToLeft: false,
@@ -28,7 +20,6 @@ const ColumnsConfig = [
     dataKey: 'date',
     width: null,
     defaultWidth: 100,
-    cellRenderer: ({ rowData }) => <SimpleDateCellRenderer date={rowData.date} />,
   },
   {
     isStickToLeft: false,
@@ -40,7 +31,6 @@ const ColumnsConfig = [
     dataKey: 'tripNumber',
     width: null,
     defaultWidth: 75,
-    cellRenderer: ({ rowData }) => <SimpleTextCellRenderer text={rowData.tripNumber} />,
   },
   {
     isStickToLeft: false,
@@ -52,7 +42,6 @@ const ColumnsConfig = [
     dataKey: 'category',
     width: null,
     defaultWidth: 200,
-    cellRenderer: ({ rowData }) => <SimpleTextCellRenderer text={rowData.category.name} />,
   },
   {
     isStickToLeft: false,
@@ -64,7 +53,6 @@ const ColumnsConfig = [
     dataKey: 'subCategory',
     width: null,
     defaultWidth: 200,
-    cellRenderer: ({ rowData }) => <SimpleTextCellRenderer text={rowData.subCategory.name} />,
   },
   {
     isStickToLeft: false,
@@ -76,21 +64,18 @@ const ColumnsConfig = [
     dataKey: 'plane',
     width: null,
     defaultWidth: 100,
-    cellRenderer: ({ rowData }) => <SinglePlaneCellRenderer plane={rowData.plane} />,
   },
   {
     label: 'Cost',
     dataKey: 'cost',
     width: null,
     defaultWidth: 100,
-    cellRenderer: ({ rowData }) => <SimpleCurrencyCellRenderer data={rowData.cost} />,
   },
   {
     label: 'Cost Original',
     dataKey: 'costOriginal',
     width: null,
     defaultWidth: 120,
-    cellRenderer: ({ rowData }) => <SimpleCurrencyCellRenderer data={rowData.costOriginal} />,
   },
   {
     isStickToLeft: false,
@@ -102,7 +87,6 @@ const ColumnsConfig = [
     dataKey: 'total',
     width: null,
     defaultWidth: 100,
-    cellRenderer: ({ rowData }) => <SimpleCurrencyCellRenderer data={rowData.total} />,
   },
   {
     isStickToLeft: false,
@@ -114,7 +98,6 @@ const ColumnsConfig = [
     dataKey: 'totalOriginal',
     width: null,
     defaultWidth: 150,
-    cellRenderer: ({ rowData }) => <SimpleCurrencyCellRenderer data={rowData.totalOriginal} />,
   },
   {
     isStickToLeft: false,
@@ -126,7 +109,6 @@ const ColumnsConfig = [
     dataKey: 'exchangeRate',
     width: null,
     defaultWidth: 100,
-    cellRenderer: ({ rowData }) => <SimpleTextCellRenderer text={rowData.exchangeRate} />,
   },
 ]
 

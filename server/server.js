@@ -158,5 +158,6 @@ app.get('/api/transactions', function (req, res) {
 
 generateTransactionsList()
 app.listen(3001, () => {
-  console.log('started')
+  console.log('Started')
+  console.log(`Generated ${transactionsAmount} transactions`)
 })
